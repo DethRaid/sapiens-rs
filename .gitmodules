@@ -1,0 +1,3 @@
+[submodule "extern/sapiens-mod-creation"]
+	path = extern/sapiens-mod-creation
+	url = https://github.com/mjdave/sapiens-mod-creation.git

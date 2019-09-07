@@ -6,7 +6,16 @@
       <sourceFolder url="file://$MODULE_DIR$/../RustAPI\examples" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/../RustAPI\tests" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/../RustAPI\benches" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/sapiens-sys/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/sapiens-sys\examples" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/sapiens-sys\tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/sapiens-sys\benches" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/../sapiens-rs\examples" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/../sapiens-rs\tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/../sapiens-rs\benches" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/../RustAPI\target" />
+      <excludeFolder url="file://$MODULE_DIR$/sapiens-sys/target" />
+      <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
