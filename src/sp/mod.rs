@@ -1,4 +1,5 @@
 mod biome;
 mod math;
 mod common;
-mod noise;
+pub mod noise;
+mod particles;
