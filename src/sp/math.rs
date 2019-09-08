@@ -130,6 +130,30 @@ impl Sub for Vec4 {
     }
 }
 
+impl Mul<f64> for Vec4 {
+    type Output = Vec4;
+
+    fn mul(self, rhs: f64) -> Self::Output {
+        Vec4(unsafe { spVec4Mul(self.0, rhs) })
+    }
+}
+
+impl Div<f64> for Vec4 {
+    type Output = Vec4;
+
+    fn div(self, rhs: f64) -> Self::Output {
+        Vec4(unsafe { spVec4Div(self.0, rhs) })
+    }
+}
+
+impl Neg for Vec4 {
+    type Output = Vec4;
+
+    fn neg(self) -> Self::Output {
+        Vec4(unsafe { spVec4Neg(self.0) })
+    }
+}
+
 impl Mat3 {
     pub fn as_sp_mat(&self) -> SPMat3 {
         self.0
