@@ -28,6 +28,12 @@ impl Vec2 {
     }
 }
 
+impl From<SPVec2> for Vec2 {
+    fn from(sp_vec: SPVec2) -> Self {
+        Vec2(sp_vec)
+    }
+}
+
 impl Default for Vec2 {
     fn default() -> Self {
         Vec2::new(0.0, 0.0)
@@ -134,6 +140,12 @@ impl Default for Vec3 {
     }
 }
 
+impl From<SPVec3> for Vec3 {
+    fn from(sp_vec: SPVec3) -> Self {
+        Vec3(sp_vec)
+    }
+}
+
 impl Add for Vec3 {
     type Output = Vec3;
 
@@ -195,6 +207,12 @@ impl Vec4 {
 impl Default for Vec4 {
     fn default() -> Self {
         Vec4::new(0.0, 0.0, 0.0, 0.0)
+    }
+}
+
+impl From<SPVec4> for Vec4 {
+    fn from(sp_vec: SPVec4) -> Self {
+        Vec4(sp_vec)
     }
 }
 
@@ -294,6 +312,12 @@ impl Default for Mat3 {
     }
 }
 
+impl From<SPMat3> for Mat3 {
+    fn from(sp_map: SPMat3) -> Self {
+        Mat3(sp_mat)
+    }
+}
+
 impl From<Quat> for Mat3 {
     fn from(quat: Quat) -> Self {
         let mut mat: Mat3 = Default::default();
@@ -372,6 +396,12 @@ impl Default for Mat4 {
             &Vec4::new(0.0, 0.0, 1.0, 0.0),
             &Vec4::new(0.0, 0.0, 0.0, 1.0),
         )
+    }
+}
+
+impl From<SPMat4> for Mat4 {
+    fn from(sp_mat: SPMat4) -> Self {
+        Mat4(sp_mat)
     }
 }
 
