@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="CMakeWorkspace" PROJECT_DIR="$PROJECT_DIR$/extern/sapiens-mod-creation/SPlugins/Linux">
+    <contentRoot DIR="$PROJECT_DIR$" />
+  </component>
   <component name="PreferredVcsStorage">
     <preferredVcsName>ApexVCS</preferredVcsName>
   </component>

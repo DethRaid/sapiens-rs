@@ -3,8 +3,12 @@ name = "sapiens-rs"
 version = "0.1.0"
 authors = ["David Dubois <dexcelstraun7@gmail.com>"]
 edition = "2018"
+description = "A few functions and project templates to wrap the Sapiens C API in a Rust API"
+readme = "readme.md"
+keywords = ["sapiens", "mod", "modding"]
+categories = ["api_bindings"]
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+# TODO: Badges
 
 [dependencies]
 sapiens-sys = { path = "sapiens-sys" }

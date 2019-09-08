@@ -1,5 +1,7 @@
-mod biome;
-mod math;
-mod common;
+pub mod biome;
+pub mod math;
+pub mod common;
 pub mod noise;
-mod particles;
+pub mod particles;
+
+pub mod shim;
