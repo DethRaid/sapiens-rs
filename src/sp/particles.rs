@@ -1,7 +1,7 @@
 //! Rusty structs for particle things
 
+use crate::sp::math::{Mat3, Vec3, Vec4};
 use sapiens_sys::*;
-use crate::sp::math::{Vec3, Vec4, Mat3};
 
 #[repr(i32)]
 pub enum RenderGroupVertexDescriptionType {
@@ -14,12 +14,16 @@ pub enum RenderGroupVertexDescriptionType {
 pub struct RenderGroupInfo(SPParticleRenderGroupInfo);
 
 impl RenderGroupInfo {
-    pub fn new(shader_name: &mut str, local_id: u32, vertex_description_types: &mut [RenderGroupVertexDescriptionType]) -> Self {
+    pub fn new(
+        shader_name: &mut str,
+        local_id: u32,
+        vertex_description_types: &mut [RenderGroupVertexDescriptionType],
+    ) -> Self {
         RenderGroupInfo(SPParticleRenderGroupInfo {
             shaderName: unsafe { shader_name.as_mut_ptr() as _ },
             localID: local_id,
             vertexDescriptionTypeCount: vertex_description_types.len() as i32,
-            vertexDescriptionTypes: unsafe { vertex_description_types.as_mut_ptr() as I }
+            vertexDescriptionTypes: unsafe { vertex_description_types.as_mut_ptr() as _ },
         })
     }
 }
@@ -30,7 +34,7 @@ impl EmitterTypeInfo {
     pub fn new(name: &mut str, local_id: u32) -> Self {
         EmitterTypeInfo(SPParticleEmitterTypeInfo {
             name: unsafe { name.as_mut_ptr() as _ },
-            localID: local_id
+            localID: local_id,
         })
     }
 }
@@ -38,15 +42,51 @@ impl EmitterTypeInfo {
 pub struct EmitterState(SPParticleEmitterState);
 
 impl EmitterState {
-    pub fn new(position: Vec3, rotation: Mat3, time_accumulator_a: f64, time_accumulator_b: f64, user_data: Vec4, global_type: u32, counters: [u8; 4]) -> Self {
+    pub fn new(
+        position: Vec3,
+        rotation: Mat3,
+        time_accumulator_a: f64,
+        time_accumulator_b: f64,
+        user_data: Vec4,
+        global_type: u32,
+        counters: [u8; 4],
+    ) -> Self {
         EmitterState(SPParticleEmitterState {
-            p: position.to_sp_vec3(),
-            rot: rotation.to_sp_mat3(),
+            p: position.as_sp_vec(),
+            rot: rotation.as_sp_vec(),
             timeAccumulatorA: time_accumulator_a,
             timeAccumulatorB: time_accumulator_b,
-            userData: user_data.to_sp_vec4(),
+            userData: user_data.as_sp_vec(),
             globalType: global_type,
-            counters: counters
+            counters,
+        })
+    }
+}
+
+pub struct ParticleState(SPParticleState);
+
+impl ParticleState {
+    pub fn new(
+        position: Vec3,
+        velocity: Vec3,
+        gravity: Vec3,
+        life_left: f64,
+        scale: f64,
+        random_value_a: f64,
+        random_value_b: f64,
+        user_data: Vec4,
+        particle_texture_type: u32,
+    ) -> Self {
+        ParticleState(SPParticleState {
+            p: position.as_sp_vec(),
+            v: velocity.as_sp_vec(),
+            gravity: gravity.as_sp_vec(),
+            lifeLeft: life_left,
+            scale,
+            randomValueA: random_value_a,
+            randomValueB: random_value_b,
+            userData: user_data.as_sp_vec(),
+            particleTextureType: particle_texture_type,
         })
     }
 }

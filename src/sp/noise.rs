@@ -1,5 +1,5 @@
-use sapiens_sys::{SPNoise, spNoiseNew, spNoiseDelete, spNoiseGet};
 use crate::sp::math::Vec3;
+use sapiens_sys::{spNoiseDelete, spNoiseGet, spNoiseNew, SPNoise};
 
 pub struct Noise(*mut SPNoise);
 
@@ -11,13 +11,11 @@ impl Noise {
     /// * `seed` - Noise seed
     /// * `persistance` -
     pub fn new(seed: i32, persistance: f64) -> Self {
-        unsafe {
-            Noise(spNoiseNew(seed, persistance))
-        }
+        unsafe { Noise(spNoiseNew(seed, persistance)) }
     }
 
     pub fn delete(self) {
-        unsafe { spNoiseDelete(self.to_sp_noise()) };
+        unsafe { spNoiseDelete(self.as_sp_noise()) };
     }
 
     /// Evaluates this Noise at the given position, using end_octave octaves
@@ -28,10 +26,10 @@ impl Noise {
     /// * `end_octave` - The maximum noise octave to evaluate. Higher numbers give higher-frequency noise at the cost of
     ///     performance
     pub fn get(&self, pos: &Vec3, end_octave: i32) -> f64 {
-        unsafe { spNoiseGet(self.to_sp_noise(), pos.to_sp_vec3(), end_octave) }
+        unsafe { spNoiseGet(self.as_sp_noise(), pos.as_sp_vec(), end_octave) }
     }
 
-    pub fn to_sp_noise(&self) -> *mut SPNoise {
+    pub fn as_sp_noise(&self) -> *mut SPNoise {
         self.0
     }
 }
