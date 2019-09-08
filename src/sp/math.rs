@@ -63,6 +63,45 @@ impl Neg for Vec2 {
 }
 
 impl Vec3 {
+    /// Normalizes the provided vector
+    pub fn normalize(vec: &Vec3) -> Vec3 {
+        Vec3(unsafe { spVec3Normalize(vec.0) })
+    }
+
+    /// Calculates the dot product of two vectors
+    pub fn dot(lhs: &Vec3, rhs: &Vec3) -> f64 {
+        unsafe { spVec3Dot(lhs.0, rhs.0) }
+    }
+
+    /// Calculates the dot product of two vectors
+    pub fn cross(lhs: &Vec3, rhs: &Vec3) -> Vec3 {
+        Vec3(unsafe { spVec3Cross(lhs.0, rhs.0) })
+    }
+
+    /// Calculates the distance between two points
+    pub fn distance(lhs: &Vec3, rhs: &Vec3) -> f64 {
+        unsafe { spVec3Distance(lhs.0, rhs.0) }
+    }
+
+    /// Calculates the squared distance between two points
+    ///
+    /// This method avoid a square root and is thus faster in many algorithms
+    pub fn squared_distance(lhs: &Vec3, rhs: &Vec3) -> f64 {
+        unsafe { spVec3Distance2(lhs.0, rhs.0) }
+    }
+
+    /// Gets the length of this vector
+    pub fn len(&self) -> f64 {
+        unsafe { spVec3Length(self.0) }
+    }
+
+    /// Gets the squared length of this vector
+    ///
+    /// This method avoids a square root and is thus faster in many algorithms
+    pub fn squared_len(&self) -> f64 {
+        unsafe { spVec3Length2(self.0) }
+    }
+
     pub fn as_sp_vec(&self) -> SPVec3 {
         self.0
     }
@@ -89,6 +128,14 @@ impl Mul<f64> for Vec3 {
 
     fn mul(self, rhs: f64) -> Self::Output {
         Vec3(unsafe { spVec3Mul(self.0, rhs) })
+    }
+}
+
+impl Mul<Mat3> for Vec3 {
+    type Output = Vec3;
+
+    fn mul(self, rhs: Mat3) -> Self::Output {
+        Vec3(unsafe { spVec3xMat3(self.0, rhs.0) })
     }
 }
 
