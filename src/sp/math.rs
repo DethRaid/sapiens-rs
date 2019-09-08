@@ -5,16 +5,11 @@ pub struct Vec2(SPVec2);
 
 pub struct Vec3(SPVec3);
 
-pub struct Vec4 {
-    pub x: f64,
-    pub y: f64,
-    pub z: f64,
-    pub w: f64,
-}
+pub struct Vec4(SPVec4);
 
-pub struct Mat3{}
+pub struct Mat3(SPMat3);
 
-pub struct Mat4{}
+pub struct Mat4(SPMat4);
 
 impl Vec2 {
     pub fn to_sp_vec2(&self) -> SPVec2 {
