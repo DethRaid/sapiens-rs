@@ -11,4 +11,4 @@ categories = ["api_bindings"]
 # TODO: Badges
 
 [dependencies]
-sapiens-sys = { path = "sapiens-sys" }
+sapiens-sys = { path = "sapiens-sys", version = "0.1.0" }
