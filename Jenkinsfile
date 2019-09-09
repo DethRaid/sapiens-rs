@@ -1,9 +1,11 @@
 pipeline {
     agent any
 
-    stage('Build') {
-        steps {
-            powershell "cargo build"
+    stages {
+        stage('Build') {
+            steps {
+                powershell "cargo build"
+            }
         }
     }
 }
