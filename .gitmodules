@@ -1,3 +1,6 @@
 [submodule "sapiens-sys/extern/sapiens-mod-creation"]
 	path = sapiens-sys/extern/sapiens-mod-creation
 	url = https://github.com/mjdave/sapiens-mod-creation.git
+[submodule "sapiens-sys/extern/--force"]
+	path = sapiens-sys/extern/--force
+	url = https://github.com/mjdave/sapiens-mod-creation.git
