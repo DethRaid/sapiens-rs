@@ -1,5 +1,5 @@
 use sapiens_sys::*;
-use std::ops::{Add, Div, Index, IndexMut, Mul, Neg, Sub};
+use std::ops::{Add, Div, Mul, Neg, Sub};
 
 #[derive(Debug)]
 pub struct Vec2(SPVec2);
@@ -261,7 +261,7 @@ impl Quat {
     ///
     /// aka interpolates between two rotations
     pub fn slerp(a: &Quat, b: &Quat, x: f64) -> Quat {
-        Vec4(unsafe { spQuatSlerp(a.0, b.0, a) })
+        Vec4(unsafe { spQuatSlerp(a.0, b.0, x) })
     }
 }
 
@@ -303,6 +303,10 @@ impl Mat3 {
     pub fn inverse(&self) -> Mat3 {
         Mat3(unsafe { spMat3Inverse(self.0) })
     }
+
+    pub fn get_row(&self, row: u32) -> Vec3 {
+        Vec3::from(unsafe { spMat3GetRow(self.0, row as i32) })
+    }
 }
 
 impl Default for Mat3 {
@@ -314,12 +318,12 @@ impl Default for Mat3 {
 
 impl From<SPMat3> for Mat3 {
     fn from(sp_map: SPMat3) -> Self {
-        Mat3(sp_mat)
+        Mat3(sp_map)
     }
 }
 
-impl From<Quat> for Mat3 {
-    fn from(quat: Quat) -> Self {
+impl From<&mut Quat> for Mat3 {
+    fn from(quat: &mut Quat) -> Self {
         let mut mat: Mat3 = Default::default();
 
         unsafe { spMat3Cast(&mut quat.0, &mut mat.0) }
@@ -329,23 +333,8 @@ impl From<Quat> for Mat3 {
 }
 
 impl Into<Quat> for Mat3 {
-    fn into(self) -> Quat {
+    fn into(mut self) -> Quat {
         Vec4(unsafe { spQuatCast(&mut self.0) })
-    }
-}
-
-impl Index<u32> for Mat3 {
-    type Output = Vec3;
-
-    /// Gets the row at the specified index
-    fn index(&self, index: u32) -> &Self::Output {
-        &Vec3(unsafe { spMat3GetRow(self.0, index as i32) })
-    }
-}
-
-impl IndexMut<u32> for Mat3 {
-    fn index_mut(&mut self, index: u32) -> &mut Self::Output {
-        &mut Vec3(unsafe { spMat3GetRow(self.0, index as i32) })
     }
 }
 

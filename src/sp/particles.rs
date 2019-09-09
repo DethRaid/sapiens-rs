@@ -20,10 +20,10 @@ impl RenderGroupInfo {
         vertex_description_types: &mut [RenderGroupVertexDescriptionType],
     ) -> Self {
         RenderGroupInfo(SPParticleRenderGroupInfo {
-            shaderName: unsafe { shader_name.as_mut_ptr() as _ },
+            shaderName: shader_name.as_mut_ptr() as _,
             localID: local_id,
             vertexDescriptionTypeCount: vertex_description_types.len() as i32,
-            vertexDescriptionTypes: unsafe { vertex_description_types.as_mut_ptr() as _ },
+            vertexDescriptionTypes: vertex_description_types.as_mut_ptr() as _,
         })
     }
 }
@@ -33,7 +33,7 @@ pub struct EmitterTypeInfo(SPParticleEmitterTypeInfo);
 impl EmitterTypeInfo {
     pub fn new(name: &mut str, local_id: u32) -> Self {
         EmitterTypeInfo(SPParticleEmitterTypeInfo {
-            name: unsafe { name.as_mut_ptr() as _ },
+            name: name.as_mut_ptr() as _,
             localID: local_id,
         })
     }
@@ -53,7 +53,7 @@ impl EmitterState {
     ) -> Self {
         EmitterState(SPParticleEmitterState {
             p: position.as_sp_vec(),
-            rot: rotation.as_sp_vec(),
+            rot: rotation.as_sp_mat(),
             timeAccumulatorA: time_accumulator_a,
             timeAccumulatorB: time_accumulator_b,
             userData: user_data.as_sp_vec(),
