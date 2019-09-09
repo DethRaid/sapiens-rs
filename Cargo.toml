@@ -12,3 +12,7 @@ categories = ["api_bindings"]
 
 [dependencies]
 sapiens-sys = { path = "sapiens-sys", version = "0.1.0" }
+
+[examples]
+name = "more-smoke-mod"
+crate-type = ["cdylib"]

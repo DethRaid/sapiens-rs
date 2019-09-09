@@ -1,5 +1,5 @@
 use sapiens_sys::*;
-use std::ops::{Add, Div, Mul, Neg, Sub};
+use std::ops::{Add, Deref, Div, Mul, Neg, Sub};
 
 #[derive(Debug)]
 pub struct Vec2(SPVec2);
@@ -31,6 +31,14 @@ impl Vec2 {
 impl From<SPVec2> for Vec2 {
     fn from(sp_vec: SPVec2) -> Self {
         Vec2(sp_vec)
+    }
+}
+
+impl Deref for Vec2 {
+    type Target = SPVec2;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
     }
 }
 
@@ -80,6 +88,7 @@ impl Neg for Vec2 {
     }
 }
 
+#[allow(clippy::len_without_is_empty)]
 impl Vec3 {
     pub fn new(x: f64, y: f64, z: f64) -> Self {
         Vec3(SPVec3 { x, y, z })
@@ -131,6 +140,14 @@ impl Vec3 {
 
     pub fn as_sp_vec(&self) -> SPVec3 {
         self.0
+    }
+}
+
+impl Deref for Vec3 {
+    type Target = SPVec3;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
     }
 }
 
@@ -213,6 +230,14 @@ impl Default for Vec4 {
 impl From<SPVec4> for Vec4 {
     fn from(sp_vec: SPVec4) -> Self {
         Vec4(sp_vec)
+    }
+}
+
+impl Deref for Vec4 {
+    type Target = SPVec4;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
     }
 }
 
@@ -309,6 +334,14 @@ impl Mat3 {
     }
 }
 
+impl Deref for Mat3 {
+    type Target = SPMat3;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
 impl Default for Mat3 {
     /// Creates an 3x3 identity matrix
     fn default() -> Self {
@@ -373,6 +406,14 @@ impl Mat4 {
 
     pub fn as_sp_mat(&self) -> SPMat4 {
         self.0
+    }
+}
+
+impl Deref for Mat4 {
+    type Target = SPMat4;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
     }
 }
 
