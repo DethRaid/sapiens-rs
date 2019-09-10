@@ -20,10 +20,11 @@ pipeline {
                 Remove-Item -Recurse -Force extern
 
                 # Update version
-                $ManifestFile = "Cargo.toml"
-                $ManifestFileVersion = (Get-Content $ManifestFile | Select -Index 2).Split('.')
+                $ManifestFileName = "Cargo.toml"
+                $ManifestFile = Get-Content $ManifestFileName
+                $ManifestFileVersion = ($ManifestFile | Select -Index 2).Split('.')
                 $NewVersion = "{0}.{1}.{2}" -f $ManifestFileVersion[0], ([int]$ManifestFileVersion[1] + 1), $ManifestFileVersion[2]
-                $NewVersion | Set-Content $ManifestFile
+                $ManifestFile -Replace "version = .\d+.\d+.\d+.", $NewVersion | Set-Content $ManifestFileName
 
                 # Commit results
                 git add Cargo.toml
