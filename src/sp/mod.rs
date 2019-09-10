@@ -159,11 +159,13 @@ pub fn vec3_x_mat3(v: SPVec3, m: SPMat3) -> SPVec3 {
 }
 
 /// Casts a 3x3 matrix to a quaternion
+#[allow(clippy::not_unsafe_ptr_arg_deref)]
 pub fn quat_cast(m: *mut SPMat3) -> SPQuat {
     unsafe { spQuatCast(m) }
 }
 
 /// Casts a quaternion to a 3x3 matrix
+#[allow(clippy::not_unsafe_ptr_arg_deref)]
 pub fn mat3_cast(q: *mut SPQuat, m: *mut SPMat3) {
     unsafe { spMat3Cast(q, m) }
 }
@@ -213,4 +215,29 @@ pub fn mat3_from_vec3s(a: SPVec3, b: SPVec3, c: SPVec3) -> SPMat3 {
 /// Calculates the inverse of a matrix which would look in the direction `look`, using `up` as its up vector
 pub fn mat3_look_at_inverse(look: SPVec3, up: SPVec3) -> SPMat3 {
     unsafe { spMat3LookAtInverse(look, up) }
+}
+
+/// Rotates matrix `m` `mangle` (degrees|radians) around `axis`, storing the result in `result`
+#[allow(clippy::not_unsafe_ptr_arg_deref)]
+pub fn mat3_rotate_ptr(m: *mut SPMat3, angle: f64, axis: *mut SPVec3, result: *mut SPMat3) {
+    unsafe { spMat3RotatePtr(m, angle, axis, result) }
+}
+
+/// Computes the inverse of a matrix to look in direction `look` using `up` as the up direction, and stores the result
+/// in `result`
+#[allow(clippy::not_unsafe_ptr_arg_deref)]
+pub fn mat3_look_at_inverse_ptr(look: *mut SPVec3, up: *mut SPVec3, result: *mut SPMat3) {
+    unsafe { spMat3LookAtInversePtr(look, up, result) }
+}
+
+/// Calculates the inverse of `m`, storing the result in `result`
+#[allow(clippy::not_unsafe_ptr_arg_deref)]
+pub fn mat3_inverse_ptr(m: *mut SPMat3, result: *mut SPMat3) {
+    unsafe { spMat3InversePtr(m, result) }
+}
+
+/// Spherically interpolates between `a` and `b` by `fraction` amount, storing the result in `result`
+#[allow(clippy::not_unsafe_ptr_arg_deref)]
+pub fn mat3_slerp_ptr(a: *mut SPMat3, b: *mut SPMat3, fraction: f64, result: *mut SPMat3) {
+    unsafe { spMat3SlerpPtr(a, b, fraction, result) }
 }
