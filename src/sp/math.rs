@@ -1,3 +1,9 @@
+//! Implements an idiomatic interface to Sapiens' math library
+//!
+//! The intended use case for this module is if your mod has complex linear algebra computations. Converting to and from
+//! these types can be very cumbersome so I recommend you don't do it unless you have complex vector math where most of
+//! your code can use this interface
+
 use sapiens_sys::*;
 use std::ops::{Add, Deref, Div, Mul, Neg, Sub};
 
@@ -433,29 +439,4 @@ impl From<SPMat4> for Mat4 {
     fn from(sp_mat: SPMat4) -> Self {
         Mat4(sp_mat)
     }
-}
-
-/// Calculates the minimum of two numbers
-pub fn min(x: f64, y: f64) -> f64 {
-    unsafe { spMin(x, y) }
-}
-
-/// Calculates the maximum of two numbers
-pub fn max(x: f64, y: f64) -> f64 {
-    unsafe { spMax(x, y) }
-}
-
-/// Clamps x between min and max
-pub fn clamp(x: f64, min: f64, max: f64) -> f64 {
-    unsafe { spClamp(x, min, max) }
-}
-
-/// Mixes x and y, using a as the mix factor
-pub fn mix(x: f64, y: f64, a: f64) -> f64 {
-    unsafe { spMix(x, y, a) }
-}
-
-/// Smooth steps x between edge0 and edge1
-pub fn smooth_step(edge0: f64, edge1: f64, x: f64) -> f64 {
-    unsafe { spSmoothStep(edge0, edge1, x) }
 }
