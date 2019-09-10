@@ -51,10 +51,10 @@ pub fn update_particle(
     origin: SPVec3,
     render_buffer: *mut f32,
 ) -> bool {
-    let life_left_multiplier = match ParticleRenderType::from(render_group) {
-        ParticleRenderType::Smoke => 0.01,
-        ParticleRenderType::Fire => 1.5 - particle_state.randomValueB * 0.5,
-        ParticleRenderType::Spark => 1.5 - particle_state.randomValueB * 1.0,
+    let life_left_multiplier = match render_group {
+        ParticleRenderType::Smoke as u32 => 0.01,
+        ParticleRenderType::Fire as u32 => 1.5 - particle_state.randomValueB * 0.5,
+        ParticleRenderType::Spark as u32 => 1.5 - particle_state.randomValueB * 1.0,
         _ => 1.0,
     };
 
