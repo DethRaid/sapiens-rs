@@ -12,6 +12,8 @@ pub mod rand;
 
 use sapiens_sys::*;
 
+pub type SPQuat = SPVec4;
+
 /// Calculates the minimum of two numbers
 pub fn min(x: f64, y: f64) -> f64 {
     unsafe { spMin(x, y) }
@@ -127,4 +129,16 @@ pub fn vec3_distance2(a: SPVec3, b: SPVec3) -> f64 {
 
 pub fn vec3_x_mat3(v: SPVec3, m: SPMat3) -> SPVec3 {
     unsafe { spVec3xMat3(v, m) }
+}
+
+pub fn quat_cast(m: *mut SPMat3) -> SPQuat {
+    unsafe { spQuatCast(m) }
+}
+
+pub fn mat3_cast(q: *mut SPQuat, m: *mut SPMat3) {
+    unsafe { spMat3Cast(q, m) }
+}
+
+pub fn quat_slerp(a: SPQuat, b: SPQuat, x: f64) -> SPQuat {
+    unsafe { spQuatSlerp(a, b, x) }
 }
