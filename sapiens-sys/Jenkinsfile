@@ -1,6 +1,6 @@
 pipeline {
     parameters {
-        string(name: 'Publish', defaultValue: false, description: 'Whether to publish the crate to crates.io')
+        booleanParam(name: 'Publish', defaultValue: false, description: 'Whether to publish the crate to crates.io')
     }
 
     agent any
