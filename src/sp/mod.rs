@@ -126,5 +126,5 @@ pub fn vec3_distance2(a: SPVec3, b: SPVec3) -> f64 {
 }
 
 pub fn vec3_x_mat3(v: SPVec3, m: SPMat3) -> SPVec3 {
-    unsafe { spVec3xMat(v, m) }
+    unsafe { spVec3xMat3(v, m) }
 }
