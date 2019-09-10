@@ -1,3 +1,6 @@
+// Cargo thinks that my extern "C" code is dead code, but it's wrong
+#![allow(dead_code)]
+
 extern crate sapiens_rs;
 extern crate sapiens_sys;
 
@@ -51,11 +54,11 @@ enum ParticleRenderType {
 
 /// Updates a single particle
 pub fn update_particle(
-    thread_state: &mut SPParticleThreadState,
+    _: &mut SPParticleThreadState,
     particle_state: &mut SPParticleState,
     render_group: u32,
     delta_time: f64,
-    origin: SPVec3,
+    _: SPVec3,
     render_buffer: *mut f32,
 ) -> bool {
     let life_left_multiplier = match FromPrimitive::from_u32(render_group) {
@@ -79,8 +82,8 @@ pub fn update_particle(
             let vel = vec3_add(particle_state.v, particle_state.gravity);
 
             particle_state.p = vec3_add(particle_state.p, vec3_mul(vel, delta_time));
-            particle_state.scale = particle_state.scale
-                + delta_time * particle_state.lifeLeft * (1.0 + particle_state.randomValueA) * 0.15;
+            particle_state.scale +=
+                delta_time * particle_state.lifeLeft * (1.0 + particle_state.randomValueA) * 0.15;
         }
         Some(ParticleRenderType::Fire) => {
             particle_state.p = vec3_mul(particle_state.p, 2.0 - life_left * delta_time);

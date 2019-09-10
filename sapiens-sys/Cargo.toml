@@ -8,6 +8,3 @@ keywords = ["sapiens", "ffi"]
 categories = ["api-bindings", "external-ffi-bindings"]
 repository = "https://github.com/DethRaid/sapiens-rs"
 license = "MIT"
-
-[build-dependencies]
-bindgen = "0.51.0"
