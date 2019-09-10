@@ -16,12 +16,13 @@ pipeline {
                 cd extern
                 git clone https://github.com/mjdave/sapiens-mod-creation.git
                 cd ..
+                rustup component add rustfmt --toolchain nightly-2019-08-08-x86_64-pc-windows-msvc
                 bindgen resources/wrapper.h -o src/bindings.rs
 
                 # Update version
                 $ManifestFile = "Cargo.toml"
                 $ManifestFileVersion = (Get-Content $ManifestFile | Select -Index 2).Split('.')
-                $NewVersion = "{0}.{1}.{2}" -f $ManifestFileVersion[0], $ManifestFileVersion[1] + 1, $ManifestFileVersion[2]
+                $NewVersion = "{0}.{1}.{2}" -f $ManifestFileVersion[0], ([int]$ManifestFileVersion[1] + 1), $ManifestFileVersion[2]
                 $NewVersion | Set-Content $ManifestFile
 
                 # Commit results
