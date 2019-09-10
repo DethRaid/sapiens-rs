@@ -7,9 +7,5 @@ description = "Raw FFI bindings to the Sapiens C modding API"
 keywords = ["sapiens", "ffi"]
 categories = ["api_bindings", "external-ffi-bindings"]
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[dependencies]
-
 [build-dependencies]
 bindgen = "0.51.0"
