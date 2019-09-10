@@ -1,0 +1,43 @@
+pipeline {
+    agent any
+
+    stages {
+        // Regenerates the FFI bindings and increments the package version number
+        stage('Regenerate Bindings') {
+            steps {
+                powershell '''# Generate bindings
+                mkdir extern
+                cd extern
+                git clone https://github.com/mjdave/sapiens-mod-creation.git
+                cd ..
+                bindgen resources/wrapper.h -o src/bindings.rs
+
+                # Update version
+                $ManifestFile = "Cargo.toml"
+                $ManifestFileVersion = [version](Get-Content $ManifestFile | Select -First 1)
+                $NewVersion = "{0}.{1}.{2}" -f $ManifestFileVersion.Major, $ManifestFileVersion.Minor + 1, $ManifestFileVersion.Build
+                $NewVersion | Set-Content $ManifestFile
+
+                # Commit results
+                git add Cargo.toml
+                git commit -m "Increment version"
+                git push
+                '''
+            }
+        }
+
+        // Compiles the FFI bindings into a crate
+        stage('Build') {
+            steps {
+                powershell "cargo build"
+            }
+        }
+
+        // Publishes new version of bindings
+        stage('Publish') {
+            steps {
+                powershell "cargo publish"
+            }
+        }
+    }
+}
