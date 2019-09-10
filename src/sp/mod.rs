@@ -49,7 +49,7 @@ pub fn vec2_mul(a: SPVec2, b: f64) -> SPVec2 {
     unsafe { spVec2Mul(a, b) }
 }
 
-pub fn vec2_div(a: SPVec2, b: SPVec2) -> SPVec2 {
+pub fn vec2_div(a: SPVec2, b: f64) -> SPVec2 {
     unsafe { spVec2Div(a, b) }
 }
 
@@ -95,4 +95,36 @@ pub fn vec4_div(a: SPVec4, b: f64) -> SPVec4 {
 
 pub fn vec4_neg(a: SPVec4) -> SPVec4 {
     unsafe { spVec4Neg(a) }
+}
+
+pub fn vec3_normalize(a: SPVec3) -> SPVec3 {
+    unsafe { spVec3Normalize(a) }
+}
+
+pub fn vec3_dot(a: SPVec3, b: SPVec3) -> f64 {
+    unsafe { spVec3Dot(a, b) }
+}
+
+pub fn vec3_cross(a: SPVec3, b: SPVec3) -> SPVec3 {
+    unsafe { spVec3Cross(a, b) }
+}
+
+pub fn vec3_length(a: SPVec3) -> f64 {
+    unsafe { spVec3Length(a) }
+}
+
+pub fn vec3_length2(a: SPVec3) -> f64 {
+    unsafe { spVec3Length2(a) }
+}
+
+pub fn vec3_distance(a: SPVec3, b: SPVec3) -> f64 {
+    unsafe { spVec3Distance(a, b) }
+}
+
+pub fn vec3_distance2(a: SPVec3, b: SPVec3) -> f64 {
+    unsafe { spVec3Distance2(a, b) }
+}
+
+pub fn vec3_x_mat3(v: SPVec3, m: SPMat3) -> SPVec3 {
+    unsafe { spVec3xMat(v, m) }
 }
