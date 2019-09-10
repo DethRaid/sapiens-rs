@@ -16,7 +16,7 @@ pipeline {
                 cd extern
                 git clone https://github.com/mjdave/sapiens-mod-creation.git
                 cd ..
-                bindgen resources/wrapper.h -o src/bindings.rs
+                bindgen --impl-partialeq --impl-debug --with-derive-default --with-derive-eq -o src/bindings.rs resources/wrapper.h -- -Iextern/sapiens-mod-creation/SPlugins/include/
                 Remove-Item -Recurse -Force extern
 
                 # Update version
