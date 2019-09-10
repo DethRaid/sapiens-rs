@@ -7,7 +7,7 @@ description = "Raw FFI bindings to the Sapiens C modding API"
 keywords = ["sapiens", "ffi"]
 categories = ["api_bindings", "external-ffi-bindings"]
 repository = "https://github.com/DethRaid/sapiens-rs"
-lcense = "MIT"
+license = "MIT"
 
 [build-dependencies]
 bindgen = "0.51.0"
