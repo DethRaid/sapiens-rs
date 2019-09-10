@@ -241,3 +241,8 @@ pub fn mat3_inverse_ptr(m: *mut SPMat3, result: *mut SPMat3) {
 pub fn mat3_slerp_ptr(a: *mut SPMat3, b: *mut SPMat3, fraction: f64, result: *mut SPMat3) {
     unsafe { spMat3SlerpPtr(a, b, fraction, result) }
 }
+
+/// Checks if point `p` is to the left of the line that passes through `a` before it passes through `b`
+pub fn point_is_left_of_line(p: SPVec3, a: SPVec3, b: SPVec3) -> bool {
+    unsafe { spPointIsLeftOfLine(p, a, b) }
+}
