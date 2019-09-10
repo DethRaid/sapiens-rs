@@ -4,6 +4,7 @@ extern crate sapiens_sys;
 use sapiens_sys::*;
 
 use sapiens_rs::sp::math::Vec3;
+use sapiens_rs::sp::{vec3_mul, vec3_add};
 
 /// Sapiens calls this function once per particle to update that particle's position, velocity, and rendering
 /// information
@@ -67,22 +68,20 @@ pub fn update_particle(
 
     match render_group as ParticleRenderType {
         ParticleRenderType::Smoke => {
-            particle_state.v = *(Vec3::from(particle_state.v) * (1.0 - delta_time * 0.05));
+            particle_state.v = vec3_mul(particle_state.v, 1.0 - delta_time * 0.05);
 
-            let vel = Vec3::from(particle_state.v) + Vec3::from(particle_state.gravity);
+            let vel = vec3_add(particle_state.v, particle_state.gravity);
 
-            particle_state.p = *(Vec3::from(particle_state.p) + (vel * delta_time));
+            particle_state.p = vec3_add(particle_state.p, vec3_mul(vel, delta_time));
             particle_state.scale = particle_state.scale
                 + delta_time * particle_state.lifeLeft * (1.0 + particle_state.randomValueA) * 0.15;
         }
         ParticleRenderType::Fire => {
-            particle_state.p = *(Vec3::from(particle_state.p) * ((2.0 - life_left) * delta_time));
+            particle_state.p = vec3_mul(particle_state.p,2.0 - life_left) * delta_time);
         }
         _ => {
-            particle_state.v =
-                *(Vec3::from(particle_state.v) + Vec3::from(particle_state.gravity) * delta_time);
-            particle_state.p =
-                *(Vec3::from(particle_state.p) + Vec3::from(particle_state.v) * delta_time);
+            particle_state.v = vec3_add(particle_state.v,vec3_mul(particle_state.gravity, delta_time));
+            particle_state.p = vec3_add(particle_state.p, vec3_mul(particle_state.v, delta_time));
         }
     }
 
