@@ -26,11 +26,9 @@ pipeline {
                 $NewVersion | Set-Content $ManifestFile
 
                 # Commit results
-                git config --global user.email "dexcelstraum7+jenkins@gmail.com"
-                git config --global user.name "Jenkins"
                 git add Cargo.toml
                 git commit -m "Increment version"
-                git push
+                git push origin HEAD:master
                 '''
             }
         }
