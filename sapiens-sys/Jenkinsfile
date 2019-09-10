@@ -1,11 +1,17 @@
 pipeline {
+    parameters {
+        string(name: 'Publish', defaultValue: false, description: 'Whether to publish the crate to crates.io')
+    }
+
     agent any
 
     stages {
         // Regenerates the FFI bindings and increments the package version number
         stage('Regenerate Bindings') {
             steps {
-                powershell '''# Generate bindings
+                powershell '''cd sapiens-sys
+
+                # Generate bindings
                 mkdir extern
                 cd extern
                 git clone https://github.com/mjdave/sapiens-mod-creation.git
@@ -14,8 +20,8 @@ pipeline {
 
                 # Update version
                 $ManifestFile = "Cargo.toml"
-                $ManifestFileVersion = [version](Get-Content $ManifestFile | Select -First 1)
-                $NewVersion = "{0}.{1}.{2}" -f $ManifestFileVersion.Major, $ManifestFileVersion.Minor + 1, $ManifestFileVersion.Build
+                $ManifestFileVersion = (Get-Content $ManifestFile | Select -Index 2).Split('.')
+                $NewVersion = "{0}.{1}.{2}" -f $ManifestFileVersion[0], $ManifestFileVersion[1] + 1, $ManifestFileVersion[2]
                 $NewVersion | Set-Content $ManifestFile
 
                 # Commit results
@@ -29,14 +35,18 @@ pipeline {
         // Compiles the FFI bindings into a crate
         stage('Build') {
             steps {
-                powershell "cargo build"
+                powershell "cargo build --name sapiens-sys"
             }
         }
 
         // Publishes new version of bindings
         stage('Publish') {
+            when {
+                expression { Publish == true }
+            }
+
             steps {
-                powershell "cargo publish"
+                powershell "echo Publishing"
             }
         }
     }
