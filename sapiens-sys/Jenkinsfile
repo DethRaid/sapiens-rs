@@ -18,6 +18,7 @@ pipeline {
                 cd ..
                 rustup component add rustfmt --toolchain nightly-2019-08-08-x86_64-pc-windows-msvc
                 bindgen resources/wrapper.h -o src/bindings.rs
+                Remove-Item -Recurse -Force extern
 
                 # Update version
                 $ManifestFile = "Cargo.toml"
