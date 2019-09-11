@@ -2,7 +2,6 @@ extern crate sapiens_rs_macros;
 extern crate sapiens_sys;
 
 use sapiens_rs_macros::export_to_sapiens;
-
 use sapiens_sys::SPParticleEmitterTypeInfo;
 use std::ffi::CString;
 
@@ -11,24 +10,22 @@ fn get_emitter_types_count() -> i32 {
     3
 }
 
-static EMITTERS: Vec<SPParticleEmitterTypeInfo> = vec![
-    SPParticleEmitterTypeInfo {
-        name: CString::new("campfire").unwrap().into_raw(),
-        localID: 0,
-    },
-    SPParticleEmitterTypeInfo {
-        name: CString::new("woodChop").unwrap().into_raw(),
-        localID: 1,
-    },
-    SPParticleEmitterTypeInfo {
-        name: CString::new("feathers").unwrap().into_raw(),
-        localID: 2,
-    },
-];
-
 #[export_to_sapiens]
 fn get_emitter_types() -> Vec<SPParticleEmitterTypeInfo> {
-    EMITTERS.clone()
+    vec![
+        SPParticleEmitterTypeInfo {
+            name: CString::new("campfire").unwrap().into_raw(),
+            localID: 0,
+        },
+        SPParticleEmitterTypeInfo {
+            name: CString::new("woodChop").unwrap().into_raw(),
+            localID: 1,
+        },
+        SPParticleEmitterTypeInfo {
+            name: CString::new("feathers").unwrap().into_raw(),
+            localID: 2,
+        },
+    ]
 }
 
 #[cfg(test)]
@@ -47,15 +44,22 @@ mod tests {
     fn test_get_emitter_types() {
         let emitter_types_count = get_emitter_types_count() as usize;
         let raw_ffi_emitters = spGetEmitterTypes();
-        let ffi_emitters = unsafe {
+
+        let ffi_emitters: Vec<(CString, u32)> = unsafe {
             Vec::<SPParticleEmitterTypeInfo>::from_raw_parts(
                 raw_ffi_emitters,
                 emitter_types_count,
                 emitter_types_count,
             )
-        };
+        }
+        .iter()
+        .map(|emitter| (unsafe { CString::from_raw(emitter.name) }, emitter.localID))
+        .collect();
 
-        let emitters = get_emitter_types();
+        let emitters: Vec<(CString, u32)> = get_emitter_types()
+            .iter()
+            .map(|emitter| (unsafe { CString::from_raw(emitter.name) }, emitter.localID))
+            .collect();
 
         assert_eq!(emitters, ffi_emitters);
     }
