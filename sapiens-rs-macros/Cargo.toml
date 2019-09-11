@@ -12,5 +12,8 @@ license = "MIT"
 proc-macro = true
 
 [dependencies]
-proc-quote = "0.3"
+quote = "1.0"
 syn = { version = "1.0", features = ["full"] }
+
+[dev-dependencies]
+sapiens-sys = { path = "../sapiens-sys", version = "0.2" }

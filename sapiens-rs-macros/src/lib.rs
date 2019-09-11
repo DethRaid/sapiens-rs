@@ -1,9 +1,9 @@
 extern crate proc_macro;
-extern crate proc_quote;
+extern crate quote;
 
 use crate::generation::generate_binding;
 use proc_macro::TokenStream;
-use proc_quote::quote;
+use quote::quote;
 
 mod generation;
 mod particles;
@@ -29,14 +29,11 @@ mod particles;
 /// TODO: validate that the enums used for the emitter type and render group type are the same as the enums marked as
 /// the emitter type and render group type
 #[proc_macro_attribute]
-pub fn export_for_sapiens(attr: TokenStream, item: TokenStream) -> TokenStream {
+pub fn export_to_sapiens(_attr: TokenStream, item: TokenStream) -> TokenStream {
     let input = syn::parse2(item.into()).unwrap();
 
     match input {
-        syn::Item::Fn(func) => {
-            let mut generated_func: TokenStream = generate_binding(func);
-            generated_func
-        }
+        syn::Item::Fn(func) => generate_binding(func),
         _ => quote! {compile_error!("export_for_sapiens may only be used for functions!")}.into(),
     }
 }

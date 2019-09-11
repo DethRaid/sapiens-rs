@@ -1,12 +1,13 @@
 //! Actually generates the FFI code
 
-use crate::particles::generate_get_emitter_type_count_func;
+use crate::particles::{generate_get_emitter_type_count_func, generate_get_emitter_types};
 use std::convert::TryFrom;
 
 #[allow(non_camel_case_types)]
 #[derive(Debug)]
 pub(crate) enum SapiensApiFunctions {
     spGetEmitterTypesCount,
+    spGetEmitterTypes,
 }
 
 impl TryFrom<String> for SapiensApiFunctions {
@@ -15,6 +16,8 @@ impl TryFrom<String> for SapiensApiFunctions {
     fn try_from(value: String) -> Result<Self, Self::Error> {
         if &value == "get_emitter_types_count" {
             Ok(SapiensApiFunctions::spGetEmitterTypesCount)
+        } else if &value == "get_emitter_types" {
+            Ok(SapiensApiFunctions::spGetEmitterTypes)
         } else {
             Err(())
         }
@@ -36,5 +39,6 @@ pub fn generate_binding(func: syn::ItemFn) -> proc_macro::TokenStream {
     let func_name = SapiensApiFunctions::try_from(format!("{}", func.sig.ident)).unwrap();
     match func_name {
         SapiensApiFunctions::spGetEmitterTypesCount => generate_get_emitter_type_count_func(func),
+        SapiensApiFunctions::spGetEmitterTypes => generate_get_emitter_types(func),
     }
 }
