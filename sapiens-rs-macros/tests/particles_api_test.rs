@@ -28,6 +28,11 @@ fn get_emitter_types() -> Vec<SPParticleEmitterTypeInfo> {
     ]
 }
 
+#[export_to_sapiens]
+fn get_render_group_types_count() -> u32 {
+    4
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -62,5 +67,13 @@ mod tests {
             .collect();
 
         assert_eq!(emitters, ffi_emitters);
+    }
+
+    #[test]
+    fn test_render_group_types_count() {
+        let render_group_types_count = get_render_group_types_count();
+        let ffi_render_group_types_count = spGetRenderGroupTypesCount() as u32;
+
+        assert_eq!(render_group_types_count, ffi_render_group_types_count);
     }
 }

@@ -1,6 +1,9 @@
 //! Actually generates the FFI code
 
-use crate::particles::{generate_get_emitter_type_count_func, generate_get_emitter_types};
+use crate::particles::{
+    generate_get_emitter_type_count_func, generate_get_emitter_types,
+    generate_get_render_group_types_count,
+};
 use std::convert::TryFrom;
 
 #[allow(non_camel_case_types)]
@@ -8,6 +11,7 @@ use std::convert::TryFrom;
 pub(crate) enum SapiensApiFunctions {
     spGetEmitterTypesCount,
     spGetEmitterTypes,
+    spGetRenderGroupTypesCount,
 }
 
 impl TryFrom<String> for SapiensApiFunctions {
@@ -18,6 +22,8 @@ impl TryFrom<String> for SapiensApiFunctions {
             Ok(SapiensApiFunctions::spGetEmitterTypesCount)
         } else if &value == "get_emitter_types" {
             Ok(SapiensApiFunctions::spGetEmitterTypes)
+        } else if &value == "get_render_group_types_count" {
+            Ok(SapiensApiFunctions::spGetRenderGroupTypesCount)
         } else {
             Err(())
         }
@@ -40,5 +46,8 @@ pub fn generate_binding(func: syn::ItemFn) -> proc_macro::TokenStream {
     match func_name {
         SapiensApiFunctions::spGetEmitterTypesCount => generate_get_emitter_type_count_func(func),
         SapiensApiFunctions::spGetEmitterTypes => generate_get_emitter_types(func),
+        SapiensApiFunctions::spGetRenderGroupTypesCount => {
+            generate_get_render_group_types_count(func)
+        }
     }
 }

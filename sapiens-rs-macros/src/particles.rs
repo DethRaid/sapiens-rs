@@ -25,3 +25,15 @@ pub fn generate_get_emitter_types(func: syn::ItemFn) -> proc_macro::TokenStream 
 
     ast.into()
 }
+
+pub fn generate_get_render_group_types_count(func: syn::ItemFn) -> proc_macro::TokenStream {
+    let ast = quote! {
+    pub extern "C" fn spGetRenderGroupTypesCount() -> ::std::os::raw::c_int {
+        get_render_group_types_count() as ::std::os::raw::c_int
+    }
+
+    #func
+    };
+
+    ast.into()
+}
