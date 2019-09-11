@@ -13,7 +13,8 @@ repository = "https://github.com/DethRaid/sapiens-rs"
 # TODO: Badges
 
 [dependencies]
-sapiens-sys = { path = "sapiens-sys", version = "0.2.0" }
+sapiens-sys = { path = "sapiens-sys", version = "0.2" }
+sapiens-rs-macros = { path = 'sapiens-rs-macros', version = "0.1" }
 num-traits = "0.2"
 num-derive = "0.2"
 
