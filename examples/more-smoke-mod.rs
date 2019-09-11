@@ -13,6 +13,9 @@ use sapiens_sys::*;
 
 use sapiens_rs::sp::{vec3_add, vec3_mul};
 
+use sapiens_rs_macros::export_for_sapiens;
+
+
 /// Sapiens calls this function once per particle to update that particle's position, velocity, and rendering
 /// information
 #[allow(non_snake_case)]
@@ -53,6 +56,7 @@ enum ParticleRenderType {
 }
 
 /// Updates a single particle
+#[export_for_sapiens]
 pub fn update_particle(
     _: &mut SPParticleThreadState,
     particle_state: &mut SPParticleState,

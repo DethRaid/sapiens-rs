@@ -1,6 +1,12 @@
-use proc_macro::{TokenStream, TokenTree};
+extern crate proc_macro;
+extern crate proc_quote;
+
+use crate::generation::generate_binding;
+use proc_macro::TokenStream;
 use proc_quote::quote;
-use syn;
+
+mod generation;
+mod particles;
 
 /// Generates code to allow Sapiens to call your function
 ///
@@ -23,11 +29,17 @@ use syn;
 /// TODO: validate that the enums used for the emitter type and render group type are the same as the enums marked as
 /// the emitter type and render group type
 #[proc_macro_attribute]
-pub fn export_for_sapiens(_attr: TokenStream, item: TokenStream) -> TokenStream {
-    let input = syn::parse_macro_input!(item as syn::ItemFn);
+pub fn export_for_sapiens(attr: TokenStream, item: TokenStream) -> TokenStream {
+    let input = syn::parse2(item.into()).unwrap();
 
-    unimplemented!();
+    match input {
+        syn::Item::Fn(func) => {
+            let mut generated_func: TokenStream = generate_binding(func);
+            generated_func
+        }
+        _ => quote! {compile_error!("export_for_sapiens may only be used for functions!")}.into(),
+    }
 }
 
-/// TODO: Macros to mark your emitter type and render group type enums and generate `get_emitter_types_count`,
-/// `get_emitter_types`, `get_render_group_types`, and `get_render_groups`
+// TODO: Macros to mark your emitter type and render group type enums and generate `get_emitter_types_count`,
+// `get_emitter_types`, `get_render_group_types`, and `get_render_groups`
