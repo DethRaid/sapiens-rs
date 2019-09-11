@@ -1,0 +1,15 @@
+[package]
+name = "sapiens-rs-macros"
+version = "0.1.0"
+authors = ["David Dubois <dexcelstraun7@gmail.com>"]
+edition = "2018"
+description = "Procedural macros to expose the functions that a Sapient mod needs to expose"
+keywords = ["sapiens", "ffi"]
+repository = "https://github.com/DethRaid/sapiens-rs"
+license = "MIT"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+proc-quote = "0.3"
