@@ -2,8 +2,9 @@
 
 use crate::particles::{
     generate_get_emitter_type_count_func, generate_get_emitter_types,
-    generate_get_render_group_types_count,
+    generate_get_render_group_types, generate_get_render_group_types_count,
 };
+use proc_macro::TokenStream;
 use std::convert::TryFrom;
 
 #[allow(non_camel_case_types)]
@@ -12,6 +13,7 @@ pub(crate) enum SapiensApiFunctions {
     spGetEmitterTypesCount,
     spGetEmitterTypes,
     spGetRenderGroupTypesCount,
+    spGetRenderGroupTypes,
 }
 
 impl TryFrom<String> for SapiensApiFunctions {
@@ -24,6 +26,8 @@ impl TryFrom<String> for SapiensApiFunctions {
             Ok(SapiensApiFunctions::spGetEmitterTypes)
         } else if &value == "get_render_group_types_count" {
             Ok(SapiensApiFunctions::spGetRenderGroupTypesCount)
+        } else if &value == "get_render_group_types" {
+            Ok(SapiensApiFunctions::spGetRenderGroupTypes)
         } else {
             Err(())
         }
@@ -41,13 +45,16 @@ impl TryFrom<String> for SapiensApiFunctions {
 /// - emitter_was_added -> spEmitterWasAdded
 /// - update_emitter -> spUpdateEmitter
 /// - update_particle -> spUpdateParticle
-pub fn generate_binding(func: syn::ItemFn) -> proc_macro::TokenStream {
+pub fn generate_binding(attr: TokenStream, func: syn::ItemFn) -> proc_macro::TokenStream {
     let func_name = SapiensApiFunctions::try_from(format!("{}", func.sig.ident)).unwrap();
     match func_name {
-        SapiensApiFunctions::spGetEmitterTypesCount => generate_get_emitter_type_count_func(func),
-        SapiensApiFunctions::spGetEmitterTypes => generate_get_emitter_types(func),
-        SapiensApiFunctions::spGetRenderGroupTypesCount => {
-            generate_get_render_group_types_count(func)
+        SapiensApiFunctions::spGetEmitterTypesCount => {
+            generate_get_emitter_type_count_func(attr, func)
         }
+        SapiensApiFunctions::spGetEmitterTypes => generate_get_emitter_types(attr, func),
+        SapiensApiFunctions::spGetRenderGroupTypesCount => {
+            generate_get_render_group_types_count(attr, func)
+        }
+        SapiensApiFunctions::spGetRenderGroupTypes => generate_get_render_group_types(attr, func),
     }
 }
