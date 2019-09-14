@@ -45,16 +45,14 @@ impl TryFrom<String> for SapiensApiFunctions {
 /// - emitter_was_added -> spEmitterWasAdded
 /// - update_emitter -> spUpdateEmitter
 /// - update_particle -> spUpdateParticle
-pub fn generate_binding(attr: TokenStream, func: syn::ItemFn) -> proc_macro::TokenStream {
+pub fn generate_binding(func: syn::ItemFn) -> TokenStream {
     let func_name = SapiensApiFunctions::try_from(format!("{}", func.sig.ident)).unwrap();
     match func_name {
-        SapiensApiFunctions::spGetEmitterTypesCount => {
-            generate_get_emitter_type_count_func(attr, func)
-        }
-        SapiensApiFunctions::spGetEmitterTypes => generate_get_emitter_types(attr, func),
+        SapiensApiFunctions::spGetEmitterTypesCount => generate_get_emitter_type_count_func(func),
+        SapiensApiFunctions::spGetEmitterTypes => generate_get_emitter_types(func),
         SapiensApiFunctions::spGetRenderGroupTypesCount => {
-            generate_get_render_group_types_count(attr, func)
+            generate_get_render_group_types_count(func)
         }
-        SapiensApiFunctions::spGetRenderGroupTypes => generate_get_render_group_types(attr, func),
+        SapiensApiFunctions::spGetRenderGroupTypes => generate_get_render_group_types(func),
     }
 }

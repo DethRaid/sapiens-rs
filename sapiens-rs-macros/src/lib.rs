@@ -29,11 +29,11 @@ mod particles;
 /// TODO: validate that the enums used for the emitter type and render group type are the same as the enums marked as
 /// the emitter type and render group type
 #[proc_macro_attribute]
-pub fn export_to_sapiens(attr: TokenStream, item: TokenStream) -> TokenStream {
+pub fn export_to_sapiens(_: TokenStream, item: TokenStream) -> TokenStream {
     let input = syn::parse2(item.into()).unwrap();
 
     match input {
-        syn::Item::Fn(func) => generate_binding(attr, func),
+        syn::Item::Fn(func) => generate_binding(func),
         _ => quote! {compile_error!("export_for_sapiens may only be used for functions!")}.into(),
     }
 }

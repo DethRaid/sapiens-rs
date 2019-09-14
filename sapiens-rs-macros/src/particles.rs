@@ -1,10 +1,7 @@
 use quote::quote;
 use std::iter::Extend;
 
-pub fn generate_get_emitter_type_count_func(
-    attr: proc_macro::TokenStream,
-    func: syn::ItemFn,
-) -> proc_macro::TokenStream {
+pub fn generate_get_emitter_type_count_func(func: syn::ItemFn) -> proc_macro::TokenStream {
     let ast = quote! {
     pub extern "C" fn spGetEmitterTypesCount() -> ::std::os::raw::c_int {
         get_emitter_types_count()
@@ -13,36 +10,29 @@ pub fn generate_get_emitter_type_count_func(
     #func
     };
 
-    let mut output = attr.clone();
-    output.extend(ast);
-
-    output
+    ast.into()
 }
 
-pub fn generate_get_emitter_types(
-    attr: proc_macro::TokenStream,
-    func: syn::ItemFn,
-) -> proc_macro::TokenStream {
+pub fn generate_get_emitter_types(func: syn::ItemFn) -> proc_macro::TokenStream {
     let ast = quote! {
     pub extern "C" fn spGetEmitterTypes() -> *mut SPParticleEmitterTypeInfo {
         let mut emitters = get_emitter_types();
 
-        emitters.as_mut_ptr()
+        emitters.shrink_to_fit();
+        assert!(emitters.len() == emitters.capacity());
+        let ptr = emitters.as_mut_ptr();
+        ::std::mem::forget(emitters);
+
+        ptr
     }
 
     #func
     };
 
-    let mut output = attr.clone();
-    output.extend(ast.into());
-
-    output
+    ast.into()
 }
 
-pub fn generate_get_render_group_types_count(
-    attr: proc_macro::TokenStream,
-    func: syn::ItemFn,
-) -> proc_macro::TokenStream {
+pub fn generate_get_render_group_types_count(func: syn::ItemFn) -> proc_macro::TokenStream {
     let ast = quote! {
     pub extern "C" fn spGetRenderGroupTypesCount() -> ::std::os::raw::c_int {
         get_render_group_types_count() as ::std::os::raw::c_int
@@ -51,28 +41,24 @@ pub fn generate_get_render_group_types_count(
     #func
     };
 
-    let mut output = attr.clone();
-    output.extend(ast.into());
-
-    output
+    ast.into()
 }
 
-pub fn generate_get_render_group_types(
-    attr: proc_macro::TokenStream,
-    func: syn::ItemFn,
-) -> proc_macro::TokenStream {
+pub fn generate_get_render_group_types(func: syn::ItemFn) -> ::proc_macro::TokenStream {
     let ast = quote! {
-    pub extern "C" fn spGetRenderGroupTypes() -> *mut SPRenderGroupTypeInfo {
+    pub extern "C" fn spGetRenderGroupTypes() -> *mut SPParticleRenderGroupInfo {
         let mut render_group_types = get_render_group_types();
 
-        render_group_types.as_mut_ptr()
+        render_group_types.shrink_to_fit();
+        assert!(render_group_types.len() == render_group_types.capacity());
+        let ptr = render_group_types.as_mut_ptr();
+        ::std::mem::forget(render_group_types);
+
+        ptr
     }
 
     #func
     };
 
-    let mut output = attr.clone();
-    output.extend(ast.into());
-
-    output
+    ast.into()
 }

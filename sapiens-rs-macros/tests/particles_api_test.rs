@@ -3,7 +3,7 @@ extern crate sapiens_sys;
 
 use sapiens_rs::sp::particles::RenderGroupVertexDescriptionType;
 use sapiens_rs_macros::export_to_sapiens;
-use sapiens_sys::SPParticleEmitterTypeInfo;
+use sapiens_sys::{SPParticleEmitterTypeInfo, SPParticleRenderGroupInfo};
 use std::ffi::CString;
 
 #[repr(u32)]
@@ -31,15 +31,15 @@ fn get_emitter_types() -> Vec<SPParticleEmitterTypeInfo> {
     vec![
         SPParticleEmitterTypeInfo {
             name: CString::new("campfire").unwrap().into_raw(),
-            localID: VanillaEmitterType::Campfire,
+            localID: VanillaEmitterType::Campfire as u32,
         },
         SPParticleEmitterTypeInfo {
             name: CString::new("woodChop").unwrap().into_raw(),
-            localID: VanillaEmitterType::WoodChop,
+            localID: VanillaEmitterType::WoodChop as u32,
         },
         SPParticleEmitterTypeInfo {
             name: CString::new("feathers").unwrap().into_raw(),
-            localID: VanillaEmitterType::Feathers,
+            localID: VanillaEmitterType::Feathers as u32,
         },
     ]
 }
@@ -49,37 +49,38 @@ fn get_render_group_types_count() -> u32 {
     4
 }
 
-static VERTEX_DESCRIPTION_TYPES: Vec<RenderGroupVertexDescriptionType> = vec![
+static VERTEX_DESCRIPTION_TYPES: [RenderGroupVertexDescriptionType; 3] = [
     RenderGroupVertexDescriptionType::Vec3,
     RenderGroupVertexDescriptionType::Vec2,
     RenderGroupVertexDescriptionType::Vec4,
 ];
 
+#[export_to_sapiens]
 fn get_render_group_types() -> Vec<SPParticleRenderGroupInfo> {
     vec![
         SPParticleRenderGroupInfo {
             shaderName: CString::new("smokeParticle").unwrap().into_raw(),
-            localID: VanillaRenderGroups::Smoke,
-            vertexDescriptionCount: VERTEX_DESCRIPTION_TYPES.len(),
-            vertexDescriptions: *VERTEX_DESCRIPTION_TYPES,
+            localID: VanillaRenderGroups::Smoke as u32,
+            vertexDescriptionTypeCount: VERTEX_DESCRIPTION_TYPES.len() as i32,
+            vertexDescriptionTypes: VERTEX_DESCRIPTION_TYPES.as_ptr() as _,
         },
         SPParticleRenderGroupInfo {
             shaderName: CString::new("fireParticle").unwrap().into_raw(),
-            localID: VanillaRenderGroups::Fire,
-            vertexDescriptionCount: VERTEX_DESCRIPTION_TYPES.len(),
-            vertexDescriptions: *VERTEX_DESCRIPTION_TYPES,
+            localID: VanillaRenderGroups::Fire as u32,
+            vertexDescriptionTypeCount: VERTEX_DESCRIPTION_TYPES.len() as i32,
+            vertexDescriptionTypes: VERTEX_DESCRIPTION_TYPES.as_ptr() as _,
         },
         SPParticleRenderGroupInfo {
             shaderName: CString::new("particle").unwrap().into_raw(),
-            localID: VanillaRenderGroups::Standard,
-            vertexDescriptionCount: VERTEX_DESCRIPTION_TYPES.len(),
-            vertexDescriptions: *VERTEX_DESCRIPTION_TYPES,
+            localID: VanillaRenderGroups::Standard as u32,
+            vertexDescriptionTypeCount: VERTEX_DESCRIPTION_TYPES.len() as i32,
+            vertexDescriptionTypes: VERTEX_DESCRIPTION_TYPES.as_ptr() as _,
         },
         SPParticleRenderGroupInfo {
             shaderName: CString::new("spark").unwrap().into_raw(),
-            localID: VanillaRenderGroups::Spark,
-            vertexDescriptionCount: VERTEX_DESCRIPTION_TYPES.len(),
-            vertexDescriptions: *VERTEX_DESCRIPTION_TYPES,
+            localID: VanillaRenderGroups::Spark as u32,
+            vertexDescriptionTypeCount: VERTEX_DESCRIPTION_TYPES.len() as i32,
+            vertexDescriptionTypes: VERTEX_DESCRIPTION_TYPES.as_ptr() as _,
         },
     ]
 }
@@ -143,7 +144,7 @@ mod tests {
         .iter()
         .map(|render_group| {
             (
-                unsafe { CString::from_raw(render_group) },
+                unsafe { CString::from_raw(render_group.shaderName) },
                 render_group.localID,
                 render_group.vertexDescriptionTypeCount,
                 render_group.vertexDescriptionTypes,
@@ -151,11 +152,11 @@ mod tests {
         })
         .collect();
 
-        let render_types = get_render_group_types()
+        let render_types: Vec<(CString, u32, i32, *mut i32)> = get_render_group_types()
             .iter()
             .map(|render_group| {
                 (
-                    unsafe { CString::from_raw(render_group) },
+                    unsafe { CString::from_raw(render_group.shaderName) },
                     render_group.localID,
                     render_group.vertexDescriptionTypeCount,
                     render_group.vertexDescriptionTypes,
