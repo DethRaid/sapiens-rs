@@ -7,50 +7,62 @@ use std::ffi::{CStr, CString};
 use std::mem;
 use std::os::raw;
 
+/// All the types of vertex attributes that Sapiens supports
 #[repr(i32)]
-pub enum RenderGroupVertexDescriptionType {
+pub enum VertexAttributeType {
     Float = SPRenderGroupVertexDescriptionType_SPRenderGroupVertexDescriptionType_float,
     Vec2 = SPRenderGroupVertexDescriptionType_SPRenderGroupVertexDescriptionType_vec2,
     Vec3 = SPRenderGroupVertexDescriptionType_SPRenderGroupVertexDescriptionType_vec3,
     Vec4 = SPRenderGroupVertexDescriptionType_SPRenderGroupVertexDescriptionType_vec4,
 }
 
-impl TryFrom<i32> for RenderGroupVertexDescriptionType {
+impl TryFrom<i32> for VertexAttributeType {
     type Error = ();
 
     fn try_from(value: i32) -> Result<Self, Self::Error> {
         match value {
             SPRenderGroupVertexDescriptionType_SPRenderGroupVertexDescriptionType_float => {
-                Ok(RenderGroupVertexDescriptionType::Float)
+                Ok(VertexAttributeType::Float)
             }
             SPRenderGroupVertexDescriptionType_SPRenderGroupVertexDescriptionType_vec2 => {
-                Ok(RenderGroupVertexDescriptionType::Vec2)
+                Ok(VertexAttributeType::Vec2)
             }
             SPRenderGroupVertexDescriptionType_SPRenderGroupVertexDescriptionType_vec3 => {
-                Ok(RenderGroupVertexDescriptionType::Vec3)
+                Ok(VertexAttributeType::Vec3)
             }
             SPRenderGroupVertexDescriptionType_SPRenderGroupVertexDescriptionType_vec4 => {
-                Ok(RenderGroupVertexDescriptionType::Vec4)
+                Ok(VertexAttributeType::Vec4)
             }
             _ => Err(()),
         }
     }
 }
 
-pub struct RenderGroupInfo {
+/// Idiomatic struct for a information about a render group
+///
+/// TODO: Generizise this so people can use an enum for their render group IDs
+pub struct RenderGroupInfo<RenderGroupIdType> {
+    /// Name of the shader to use to render this render group
     pub shader_name: String,
-    pub id: u32,
-    pub vertex_descriptions: Vec<RenderGroupVertexDescriptionType>,
+
+    /// Identifier for the render group
+    pub id: RenderGroupIdType,
+
+    /// All the vertex attributes that make up the vertex data that this render group renders
+    pub vertex_descriptions: Vec<VertexAttributeType>,
 }
 
-impl From<SPParticleRenderGroupInfo> for RenderGroupInfo {
+impl<RenderGroupIdType> From<SPParticleRenderGroupInfo> for RenderGroupInfo<RenderGroupIdType>
+where
+    RenderGroupIdType: From<u32> + Into<u32>,
+{
     fn from(sp_info: SPParticleRenderGroupInfo) -> Self {
         RenderGroupInfo {
             shader_name: unsafe { CStr::from_ptr(sp_info.shaderName) }
                 .to_str()
                 .unwrap()
                 .to_owned(),
-            id: sp_info.localID,
+            id: From::from(sp_info.localID),
             vertex_descriptions: unsafe {
                 Vec::from_raw_parts(
                     sp_info.vertexDescriptionTypes as _,
@@ -62,7 +74,10 @@ impl From<SPParticleRenderGroupInfo> for RenderGroupInfo {
     }
 }
 
-impl Into<SPParticleRenderGroupInfo> for RenderGroupInfo {
+impl<RenderGroupTypeId> Into<SPParticleRenderGroupInfo> for RenderGroupInfo<RenderGroupTypeId>
+where
+    RenderGroupTypeId: From<u32> + Into<u32>,
+{
     fn into(mut self) -> SPParticleRenderGroupInfo {
         self.vertex_descriptions.shrink_to_fit();
         let ptr = self.vertex_descriptions.as_mut_ptr() as *mut raw::c_int;
@@ -70,22 +85,43 @@ impl Into<SPParticleRenderGroupInfo> for RenderGroupInfo {
         mem::forget(self.vertex_descriptions);
 
         SPParticleRenderGroupInfo {
-            shaderName: CString::new(self.shader_name).unwrap(),
-            localID: self.id,
+            shaderName: CString::new(self.shader_name).unwrap().into_raw() as _,
+            localID: Into::into(self.id),
             vertexDescriptionTypeCount: len,
             vertexDescriptionTypes: ptr,
         }
     }
 }
 
-pub struct EmitterTypeInfo(SPParticleEmitterTypeInfo);
+pub struct EmitterTypeInfo<EmitterTypeId> {
+    pub name: String,
+    pub id: EmitterTypeId,
+}
 
-impl EmitterTypeInfo {
-    pub fn new(name: &mut str, local_id: u32) -> Self {
-        EmitterTypeInfo(SPParticleEmitterTypeInfo {
-            name: name.as_mut_ptr() as _,
-            localID: local_id,
-        })
+impl<EmitterTypeId> From<SPParticleEmitterTypeInfo> for EmitterTypeInfo<EmitterTypeId>
+where
+    EmitterTypeId: From<u32> + Into<u32>,
+{
+    fn from(sp_emitter_type: SPParticleEmitterTypeInfo) -> Self {
+        EmitterTypeInfo {
+            name: unsafe { CStr::from_ptr(sp_emitter_type.name) }
+                .to_str()
+                .unwrap()
+                .to_owned(),
+            id: From::from(sp_emitter_type.localID),
+        }
+    }
+}
+
+impl<EmitterTypeId> Into<SPParticleEmitterTypeInfo> for EmitterTypeInfo<EmitterTypeId>
+where
+    EmitterTypeId: From<u32> + Into<u32>,
+{
+    fn into(self) -> SPParticleEmitterTypeInfo {
+        SPParticleEmitterTypeInfo {
+            name: CString::new(self.name).unwrap().into_raw() as _,
+            localID: Into::into(self.id),
+        }
     }
 }
 

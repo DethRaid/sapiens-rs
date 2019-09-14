@@ -1,7 +1,7 @@
 extern crate sapiens_rs_macros;
 extern crate sapiens_sys;
 
-use sapiens_rs::sp::particles::RenderGroupVertexDescriptionType;
+use sapiens_rs::sp::particles::{EmitterTypeInfo, RenderGroupInfo, VertexAttributeType};
 use sapiens_rs_macros::export_to_sapiens;
 use sapiens_sys::{SPParticleEmitterTypeInfo, SPParticleRenderGroupInfo};
 use std::ffi::CString;
@@ -27,19 +27,19 @@ fn get_emitter_types_count() -> i32 {
 }
 
 #[export_to_sapiens]
-fn get_emitter_types() -> Vec<SPParticleEmitterTypeInfo> {
+fn get_emitter_types() -> Vec<EmitterTypeInfo<VanillaEmitterType>> {
     vec![
-        SPParticleEmitterTypeInfo {
-            name: CString::new("campfire").unwrap().into_raw(),
-            localID: VanillaEmitterType::Campfire as u32,
+        EmitterTypeInfo {
+            name: "campfire".to_string(),
+            id: VanillaEmitterType::Campfire,
         },
-        SPParticleEmitterTypeInfo {
-            name: CString::new("woodChop").unwrap().into_raw(),
-            localID: VanillaEmitterType::WoodChop as u32,
+        EmitterTypeInfo {
+            name: "woodChop".to_string(),
+            id: VanillaEmitterType::WoodChop,
         },
-        SPParticleEmitterTypeInfo {
-            name: CString::new("feathers").unwrap().into_raw(),
-            localID: VanillaEmitterType::Feathers as u32,
+        EmitterTypeInfo {
+            name: "feathers".to_string(),
+            id: VanillaEmitterType::Feathers,
         },
     ]
 }
@@ -49,38 +49,50 @@ fn get_render_group_types_count() -> u32 {
     4
 }
 
-static VERTEX_DESCRIPTION_TYPES: [RenderGroupVertexDescriptionType; 3] = [
-    RenderGroupVertexDescriptionType::Vec3,
-    RenderGroupVertexDescriptionType::Vec2,
-    RenderGroupVertexDescriptionType::Vec4,
+static VERTEX_DESCRIPTION_TYPES: [VertexAttributeType; 3] = [
+    VertexAttributeType::Vec3,
+    VertexAttributeType::Vec2,
+    VertexAttributeType::Vec4,
 ];
 
 #[export_to_sapiens]
-fn get_render_group_types() -> Vec<SPParticleRenderGroupInfo> {
+fn get_render_group_types() -> Vec<RenderGroupInfo<VanillaRenderGroups>> {
     vec![
-        SPParticleRenderGroupInfo {
-            shaderName: CString::new("smokeParticle").unwrap().into_raw(),
-            localID: VanillaRenderGroups::Smoke as u32,
-            vertexDescriptionTypeCount: VERTEX_DESCRIPTION_TYPES.len() as i32,
-            vertexDescriptionTypes: VERTEX_DESCRIPTION_TYPES.as_ptr() as _,
+        RenderGroupInfo {
+            shader_name: "smokeParticle".to_string(),
+            id: VanillaRenderGroups::Smoke,
+            vertex_descriptions: vec![
+                VertexAttributeType::Vec3,
+                VertexAttributeType::Vec2,
+                VertexAttributeType::Vec4,
+            ],
         },
-        SPParticleRenderGroupInfo {
-            shaderName: CString::new("fireParticle").unwrap().into_raw(),
-            localID: VanillaRenderGroups::Fire as u32,
-            vertexDescriptionTypeCount: VERTEX_DESCRIPTION_TYPES.len() as i32,
-            vertexDescriptionTypes: VERTEX_DESCRIPTION_TYPES.as_ptr() as _,
+        RenderGroupInfo {
+            shader_name: "fireParticle".to_string(),
+            id: VanillaRenderGroups::Fire,
+            vertex_descriptions: vec![
+                VertexAttributeType::Vec3,
+                VertexAttributeType::Vec2,
+                VertexAttributeType::Vec4,
+            ],
         },
-        SPParticleRenderGroupInfo {
-            shaderName: CString::new("particle").unwrap().into_raw(),
-            localID: VanillaRenderGroups::Standard as u32,
-            vertexDescriptionTypeCount: VERTEX_DESCRIPTION_TYPES.len() as i32,
-            vertexDescriptionTypes: VERTEX_DESCRIPTION_TYPES.as_ptr() as _,
+        RenderGroupInfo {
+            shader_name: "particle".to_string(),
+            id: VanillaRenderGroups::Standard,
+            vertex_descriptions: vec![
+                VertexAttributeType::Vec3,
+                VertexAttributeType::Vec2,
+                VertexAttributeType::Vec4,
+            ],
         },
-        SPParticleRenderGroupInfo {
-            shaderName: CString::new("spark").unwrap().into_raw(),
-            localID: VanillaRenderGroups::Spark as u32,
-            vertexDescriptionTypeCount: VERTEX_DESCRIPTION_TYPES.len() as i32,
-            vertexDescriptionTypes: VERTEX_DESCRIPTION_TYPES.as_ptr() as _,
+        RenderGroupInfo {
+            shader_name: "spark".to_string(),
+            id: VanillaRenderGroups::Spark,
+            vertex_descriptions: vec![
+                VertexAttributeType::Vec3,
+                VertexAttributeType::Vec2,
+                VertexAttributeType::Vec4,
+            ],
         },
     ]
 }

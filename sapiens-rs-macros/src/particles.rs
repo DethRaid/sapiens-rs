@@ -17,10 +17,12 @@ pub fn generate_get_emitter_type_count_func(func: syn::ItemFn) -> TokenStream {
 pub fn generate_get_emitter_types(func: syn::ItemFn) -> TokenStream {
     let ast = quote! {
     pub extern "C" fn spGetEmitterTypes() -> *mut SPParticleEmitterTypeInfo {
-        let mut emitters = get_emitter_types();
+        let mut emitters: Vec<SPParticleEmitterTypeInfo> = get_emitter_types()
+            .iter()
+            .map(|emitter_type| emitter_type.into())
+            .collect();
 
         emitters.shrink_to_fit();
-        assert!(emitters.len() == emitters.capacity());
         let ptr = emitters.as_mut_ptr();
         ::std::mem::forget(emitters);
 
@@ -48,7 +50,10 @@ pub fn generate_get_render_group_types_count(func: syn::ItemFn) -> TokenStream {
 pub fn generate_get_render_group_types(func: syn::ItemFn) -> TokenStream {
     let ast = quote! {
     pub extern "C" fn spGetRenderGroupTypes() -> *mut SPParticleRenderGroupInfo {
-        let mut render_group_types = get_render_group_types();
+        let mut render_group_types: Vec<SPParticleRenderGroupInfo> = get_render_group_types()
+            .iter()
+            .map(|emitter_type| emitter_type.into())
+            .collect();
 
         render_group_types.shrink_to_fit();
         assert!(render_group_types.len() == render_group_types.capacity());
@@ -78,4 +83,6 @@ pub fn generate_emitter_was_added(func: syn::ItemFn) -> TokenStream {
 
     #func
     };
+
+    ast.into()
 }
