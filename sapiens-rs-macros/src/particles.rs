@@ -1,7 +1,8 @@
+use proc_macro::TokenStream;
 use quote::quote;
 use std::iter::Extend;
 
-pub fn generate_get_emitter_type_count_func(func: syn::ItemFn) -> proc_macro::TokenStream {
+pub fn generate_get_emitter_type_count_func(func: syn::ItemFn) -> TokenStream {
     let ast = quote! {
     pub extern "C" fn spGetEmitterTypesCount() -> ::std::os::raw::c_int {
         get_emitter_types_count()
@@ -13,7 +14,7 @@ pub fn generate_get_emitter_type_count_func(func: syn::ItemFn) -> proc_macro::To
     ast.into()
 }
 
-pub fn generate_get_emitter_types(func: syn::ItemFn) -> proc_macro::TokenStream {
+pub fn generate_get_emitter_types(func: syn::ItemFn) -> TokenStream {
     let ast = quote! {
     pub extern "C" fn spGetEmitterTypes() -> *mut SPParticleEmitterTypeInfo {
         let mut emitters = get_emitter_types();
@@ -32,7 +33,7 @@ pub fn generate_get_emitter_types(func: syn::ItemFn) -> proc_macro::TokenStream 
     ast.into()
 }
 
-pub fn generate_get_render_group_types_count(func: syn::ItemFn) -> proc_macro::TokenStream {
+pub fn generate_get_render_group_types_count(func: syn::ItemFn) -> TokenStream {
     let ast = quote! {
     pub extern "C" fn spGetRenderGroupTypesCount() -> ::std::os::raw::c_int {
         get_render_group_types_count() as ::std::os::raw::c_int
@@ -44,7 +45,7 @@ pub fn generate_get_render_group_types_count(func: syn::ItemFn) -> proc_macro::T
     ast.into()
 }
 
-pub fn generate_get_render_group_types(func: syn::ItemFn) -> ::proc_macro::TokenStream {
+pub fn generate_get_render_group_types(func: syn::ItemFn) -> TokenStream {
     let ast = quote! {
     pub extern "C" fn spGetRenderGroupTypes() -> *mut SPParticleRenderGroupInfo {
         let mut render_group_types = get_render_group_types();
@@ -61,4 +62,20 @@ pub fn generate_get_render_group_types(func: syn::ItemFn) -> ::proc_macro::Token
     };
 
     ast.into()
+}
+
+pub fn generate_emitter_was_added(func: syn::ItemFn) -> TokenStream {
+    let ast = quote! {
+    pub extern "C" fn spEmitterWasAdded(threadState: *mut SPParticleThreadState,
+        emitterState: *mut SPParticleEmitterState,
+        localEmitterTypeID: u32,
+    ) -> bool {
+        let thread_state = unsafe{ *threadState };
+        let emitter_state = unsafe { *emitterState };
+
+        emitter_was_added(&thread_state, &emitter_state, localEmitterTypeID)
+    }
+
+    #func
+    };
 }
