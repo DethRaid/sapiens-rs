@@ -1,7 +1,7 @@
 extern crate proc_macro;
 extern crate quote;
 
-use crate::generation::{generate_binding, generate_enum_try_from_and_try_into};
+use crate::generation::generate_binding;
 use proc_macro::TokenStream;
 use quote::quote;
 
@@ -34,7 +34,6 @@ pub fn export_to_sapiens(_: TokenStream, item: TokenStream) -> TokenStream {
 
     match input {
         syn::Item::Fn(func) => generate_binding(func),
-        syn::Item::Enum(item_enum) => generate_enum_try_from_and_try_into(item_enum),
         _ => quote! {compile_error!("export_for_sapiens may only be used for functions!")}.into(),
     }
 }

@@ -255,4 +255,49 @@ mod tests {
             vertex_description_types[2]
         );
     }
+
+    #[test]
+    fn test_sp_particle_render_group_info_from_render_group_info() {
+        let render_group = RenderGroupInfo {
+            shader_name: "fire".to_string(),
+            id: RenderGroupId::Fire,
+            vertex_descriptions: vec![
+                VertexAttributeType::Vec3,
+                VertexAttributeType::Vec2,
+                VertexAttributeType::Vec4,
+            ],
+        };
+
+        let sp_render_group: SPParticleRenderGroupInfo = render_group.try_into().unwrap();
+
+        assert_eq!(
+            unsafe { CStr::from_ptr(sp_render_group.shaderName) }
+                .to_str()
+                .unwrap(),
+            "fire"
+        );
+        assert_eq!(sp_render_group.localID, 0);
+
+        let sp_vertex_description_types = unsafe {
+            Vec::from_raw_parts(
+                sp_render_group.vertexDescriptionTypes,
+                sp_render_group.vertexDescriptionTypeCount as _,
+                sp_render_group.vertexDescriptionTypeCount as _,
+            )
+        };
+
+        assert_eq!(sp_render_group.vertexDescriptionTypeCount, 3);
+        assert_eq!(
+            sp_vertex_description_types[0],
+            SPRenderGroupVertexDescriptionType_SPRenderGroupVertexDescriptionType_vec3
+        );
+        assert_eq!(
+            sp_vertex_description_types[1],
+            SPRenderGroupVertexDescriptionType_SPRenderGroupVertexDescriptionType_vec2
+        );
+        assert_eq!(
+            sp_vertex_description_types[2],
+            SPRenderGroupVertexDescriptionType_SPRenderGroupVertexDescriptionType_vec4
+        );
+    }
 }
