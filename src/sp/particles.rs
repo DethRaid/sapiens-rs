@@ -2,11 +2,14 @@
 
 #![allow(non_upper_case_globals)]
 
+use crate::sp::noise::Noise;
+use crate::sp::rand::Rand;
 use num_derive::{FromPrimitive, ToPrimitive};
 use num_traits::{FromPrimitive, ToPrimitive};
 use sapiens_sys::*;
+use std::borrow::BorrowMut;
 use std::convert::{TryFrom, TryInto};
-use std::ffi::{CStr, CString};
+use std::ffi::{c_void, CStr, CString};
 use std::mem;
 use std::os::raw;
 
@@ -165,6 +168,44 @@ where
         let ffi_emitter_type = EmitterTypeId::from_u32(other.localID).unwrap();
 
         self.name == ffi_emitter_type_name && self.id == ffi_emitter_type
+    }
+}
+
+pub struct ThreadState<ParticleManager, RenderTypeId> {
+    pub particle_manager: &'_ ParticleManager,
+
+    /// Function that your mod should call to tell Sapiens to add a particle
+    pub add_particle: fn(&mut ParticleManager, &EmitterState, RenderTypeId, &ParticleState),
+    pub rand: Rand,
+    pub noise: Noise,
+}
+
+impl<ParticleManager, RenderTypeId> TryFrom<SPParticleThreadState>
+    for ThreadState<ParticleManager, RenderTypeId>
+where
+    RenderTypeId: FromPrimitive + ToPrimitive,
+{
+    type Error = ();
+
+    fn try_from(value: SPParticleThreadState) -> Result<Self, Self::Error> {
+        let mut particle_manager = unsafe { &*(value.particleManager as *mut ParticleManager) };
+
+        let add_particle =
+            |particle_manager, emitter_state, render_type: RenderTypeId, particle_state| {
+                value.addParticle.unwrap()(
+                    &particle_manager as _,
+                    &emitter_state as _,
+                    render_type.to_u32().unwrap(),
+                    &particle_state as _,
+                );
+            };
+
+        Ok(ThreadState {
+            particle_manager,
+            add_particle,
+            rand: Rand::from_ptr(value.spRand),
+            noise: Noise::from_ptr(value.spNoise),
+        })
     }
 }
 

@@ -14,6 +14,10 @@ impl Noise {
         unsafe { Noise(spNoiseNew(seed, persistance)) }
     }
 
+    pub fn from_ptr(ptr: *mut SPNoise) -> Self {
+        Noise(ptr)
+    }
+
     pub fn delete(self) {
         unsafe { spNoiseDelete(self.as_sp_noise()) };
     }

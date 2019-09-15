@@ -246,3 +246,97 @@ pub fn mat3_slerp_ptr(a: *mut SPMat3, b: *mut SPMat3, fraction: f64, result: *mu
 pub fn point_is_left_of_line(p: SPVec3, a: SPVec3, b: SPVec3) -> bool {
     unsafe { spPointIsLeftOfLine(p, a, b) }
 }
+
+// Smoke tests to ensure I'm calling the correct Sapiens functions
+
+#[cfg(tests)]
+mod math_smoke_tests {
+    use super::*;
+
+    #[test]
+    fn min_test() {
+        let result = min(3.0, 4.0);
+
+        assert_eq!(result, 3);
+    }
+
+    #[test]
+    fn max_test() {
+        let result = max(3.0, 4.0);
+
+        assert_eq!(result, 4);
+    }
+
+    #[test]
+    fn clamp_test() {
+        let result = clamp(3.0, 0.0, 1.0);
+
+        assert_eq!(result, 1);
+    }
+
+    #[test]
+    fn mix_test() {
+        let result = mix(4.0, 8.0, 0.75);
+
+        assert_eq!(result, 7.0);
+    }
+
+    #[test]
+    fn smooth_step_test() {
+        let result = smooth_step(1.0, 4.0, 0.8);
+
+        assert_eq!(result, 3.5);
+    }
+}
+
+#[cfg(tests)]
+mod vec2_smoke_tests {
+    use super::*;
+
+    #[test]
+    fn vec2_add_test() {
+        let a = SPVec2 { x: 2.0, y: 2.0 };
+        let b = SPVec2 { x: 3.0, y: 4.0 };
+
+        let result = vec2_add(a, b);
+
+        assert_eq!(result, SPVec2 { x: 5.0, y: 6.0 });
+    }
+
+    #[test]
+    fn vec2_sub_test() {
+        let a = SPVec2 { x: 2.0, y: 2.0 };
+        let b = SPVec2 { x: 3.0, y: 4.0 };
+
+        let result = vec2_sub(a, b);
+
+        assert_eq!(result, SPVec2 { x: -1.0, y: -2.0 });
+    }
+
+    #[test]
+    fn vec2_mul_test() {
+        let a = SPVec2 { x: 2.0, y: 3.0 };
+
+        let result = vec2_mul(a, 4.0);
+
+        assert_eq!(result, SPVec2 { x: 8.0, y: 12.0 });
+    }
+
+    #[test]
+    fn vec2_div_test() {
+        let a = SPVec2 { x: 2.0, y: 3.0 };
+
+        let result = vec2_div(a, 2.0);
+
+        assert_eq!(result, SPVec2 { x: 1.0, y: 1.5 })
+    }
+
+    #[test]
+    fn vec2_neg_test() {
+        let a = SPVec2 { x: 2.0, y: 3.0 };
+
+        let result = vec2_neg(a);
+
+        assert_eq!(result, SPVec2 { x: -2.0, y: -3.0 })
+    }
+}

@@ -9,6 +9,10 @@ impl Rand {
         Rand(unsafe { spRandNew(seed) })
     }
 
+    pub fn from_ptr(ptr: *mut SPRand) -> Self {
+        Rand(ptr)
+    }
+
     /// Destroys the rng
     pub fn delete(self) {
         unsafe { spRandDelete(self.0) }

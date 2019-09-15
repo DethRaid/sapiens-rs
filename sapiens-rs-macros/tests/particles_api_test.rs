@@ -1,3 +1,7 @@
+//! Reimplementation of
+//! https://github.com/mjdave/sapiens-mod-creation/blob/master/SPlugins/Examples/SPVanilla/src/SPParticles.c to show how
+//! to use the Rust API to make Sapiens particles
+
 extern crate num_derive;
 extern crate num_traits;
 extern crate sapiens_rs_macros;
@@ -5,23 +9,25 @@ extern crate sapiens_sys;
 
 use num_derive::{FromPrimitive, ToPrimitive};
 use num_traits::{FromPrimitive, ToPrimitive};
-use sapiens_rs::sp::particles::{EmitterTypeInfo, RenderGroupInfo, VertexAttributeType};
+use sapiens_rs::sp::particles::{
+    EmitterState, EmitterTypeInfo, RenderGroupInfo, VertexAttributeType,
+};
 use sapiens_rs_macros::export_to_sapiens;
 use sapiens_sys::{SPParticleEmitterTypeInfo, SPParticleRenderGroupInfo};
 
 #[derive(Debug, PartialEq, FromPrimitive, ToPrimitive)]
 enum VanillaEmitterType {
-    Campfire = 0,
-    WoodChop = 1,
-    Feathers = 2,
+    Campfire,
+    WoodChop,
+    Feathers,
 }
 
 #[derive(Debug, PartialEq, FromPrimitive, ToPrimitive)]
-enum VanillaRenderGroups {
-    Smoke = 0,
-    Fire = 1,
-    Standard = 2,
-    Spark = 3,
+enum VanillaRenderType {
+    Smoke,
+    Fire,
+    Standard,
+    Spark,
 }
 
 #[export_to_sapiens]
@@ -53,11 +59,11 @@ fn get_render_group_types_count() -> u32 {
 }
 
 #[export_to_sapiens]
-fn get_render_group_types() -> Vec<RenderGroupInfo<VanillaRenderGroups>> {
+fn get_render_group_types() -> Vec<RenderGroupInfo<VanillaRenderType>> {
     vec![
         RenderGroupInfo {
             shader_name: "smokeParticle".to_string(),
-            id: VanillaRenderGroups::Smoke,
+            id: VanillaRenderType::Smoke,
             vertex_descriptions: vec![
                 VertexAttributeType::Vec3,
                 VertexAttributeType::Vec2,
@@ -66,7 +72,7 @@ fn get_render_group_types() -> Vec<RenderGroupInfo<VanillaRenderGroups>> {
         },
         RenderGroupInfo {
             shader_name: "fireParticle".to_string(),
-            id: VanillaRenderGroups::Fire,
+            id: VanillaRenderType::Fire,
             vertex_descriptions: vec![
                 VertexAttributeType::Vec3,
                 VertexAttributeType::Vec2,
@@ -75,7 +81,7 @@ fn get_render_group_types() -> Vec<RenderGroupInfo<VanillaRenderGroups>> {
         },
         RenderGroupInfo {
             shader_name: "particle".to_string(),
-            id: VanillaRenderGroups::Standard,
+            id: VanillaRenderType::Standard,
             vertex_descriptions: vec![
                 VertexAttributeType::Vec3,
                 VertexAttributeType::Vec2,
@@ -84,7 +90,7 @@ fn get_render_group_types() -> Vec<RenderGroupInfo<VanillaRenderGroups>> {
         },
         RenderGroupInfo {
             shader_name: "spark".to_string(),
-            id: VanillaRenderGroups::Spark,
+            id: VanillaRenderType::Spark,
             vertex_descriptions: vec![
                 VertexAttributeType::Vec3,
                 VertexAttributeType::Vec2,
@@ -92,6 +98,27 @@ fn get_render_group_types() -> Vec<RenderGroupInfo<VanillaRenderGroups>> {
             ],
         },
     ]
+}
+
+#[export_to_sapiens]
+fn emitter_was_added(
+    thread_state: &mut ThreadState<_, VanillaRenderType>,
+    emitter_state: &EmitterState,
+    emitter_type: VanillaEmitterType,
+) -> bool {
+    let mut remove_immediately = false;
+
+    match emitter_type {
+        VanillaEmitterType::Campfire => {}
+        VanillaEmitterType::WoodChop => {
+            remove_immediately = true;
+
+            let pos_length = spVec3Length(emitter_state.p);
+        }
+        VanillaEmitterType::Feathers => {}
+    }
+
+    true
 }
 
 #[cfg(test)]

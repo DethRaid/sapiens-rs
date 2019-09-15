@@ -1,7 +1,7 @@
 //! Actually generates the FFI code
 
 use crate::particles::{
-    generate_get_emitter_type_count_func, generate_get_emitter_types,
+    generate_emitter_was_added, generate_get_emitter_type_count_func, generate_get_emitter_types,
     generate_get_render_group_types, generate_get_render_group_types_count,
 };
 use proc_macro::TokenStream;
@@ -15,6 +15,7 @@ pub(crate) enum SapiensApiFunctions {
     spGetEmitterTypes,
     spGetRenderGroupTypesCount,
     spGetRenderGroupTypes,
+    spEmitterWasAdded,
 }
 
 impl TryFrom<String> for SapiensApiFunctions {
@@ -29,6 +30,8 @@ impl TryFrom<String> for SapiensApiFunctions {
             Ok(SapiensApiFunctions::spGetRenderGroupTypesCount)
         } else if &value == "get_render_group_types" {
             Ok(SapiensApiFunctions::spGetRenderGroupTypes)
+        } else if &value == "emitter_was_added" {
+            Ok(SapiensApiFunctions::spEmitterWasAdded)
         } else {
             Err(())
         }
@@ -55,5 +58,6 @@ pub fn generate_binding(func: syn::ItemFn) -> TokenStream {
             generate_get_render_group_types_count(func)
         }
         SapiensApiFunctions::spGetRenderGroupTypes => generate_get_render_group_types(func),
+        SapiensApiFunctions::spEmitterWasAdded => generate_emitter_was_added(func),
     }
 }
