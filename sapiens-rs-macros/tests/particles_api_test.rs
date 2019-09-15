@@ -1,18 +1,22 @@
+extern crate num_derive;
+extern crate num_traits;
 extern crate sapiens_rs_macros;
 extern crate sapiens_sys;
 
+use num_derive::{FromPrimitive, ToPrimitive};
+use num_traits::{FromPrimitive, ToPrimitive};
 use sapiens_rs::sp::particles::{EmitterTypeInfo, RenderGroupInfo, VertexAttributeType};
 use sapiens_rs_macros::export_to_sapiens;
 use sapiens_sys::{SPParticleEmitterTypeInfo, SPParticleRenderGroupInfo};
 
-#[repr(u32)]
+#[derive(Debug, PartialEq, FromPrimitive, ToPrimitive)]
 enum VanillaEmitterType {
     Campfire = 0,
     WoodChop = 1,
     Feathers = 2,
 }
 
-#[repr(u32)]
+#[derive(Debug, PartialEq, FromPrimitive, ToPrimitive)]
 enum VanillaRenderGroups {
     Smoke = 0,
     Fire = 1,

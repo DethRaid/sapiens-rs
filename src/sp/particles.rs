@@ -2,7 +2,6 @@
 
 #![allow(non_upper_case_globals)]
 
-use crate::sp::math::{Mat3, Vec3, Vec4};
 use num_derive::{FromPrimitive, ToPrimitive};
 use num_traits::{FromPrimitive, ToPrimitive};
 use sapiens_sys::*;
@@ -22,8 +21,6 @@ pub enum VertexAttributeType {
 }
 
 /// Idiomatic struct for a information about a render group
-///
-/// TODO: Generizise this so people can use an enum for their render group IDs
 pub struct RenderGroupInfo<RenderGroupIdType>
 where
     RenderGroupIdType: FromPrimitive + ToPrimitive,
@@ -122,84 +119,40 @@ pub struct EmitterTypeInfo<EmitterTypeId> {
     pub id: EmitterTypeId,
 }
 
-impl<EmitterTypeId> From<SPParticleEmitterTypeInfo> for EmitterTypeInfo<EmitterTypeId>
+impl<EmitterTypeId> TryFrom<SPParticleEmitterTypeInfo> for EmitterTypeInfo<EmitterTypeId>
 where
     EmitterTypeId: FromPrimitive + ToPrimitive,
 {
-    fn from(sp_emitter_type: SPParticleEmitterTypeInfo) -> Self {
-        EmitterTypeInfo {
+    type Error = ();
+
+    fn try_from(sp_emitter_type: SPParticleEmitterTypeInfo) -> Result<Self, Self::Error> {
+        Ok(EmitterTypeInfo {
             name: unsafe { CStr::from_ptr(sp_emitter_type.name) }
                 .to_str()
                 .unwrap()
                 .to_owned(),
             id: FromPrimitive::from_u32(sp_emitter_type.localID).unwrap(),
-        }
+        })
     }
 }
 
-impl<EmitterTypeId> Into<SPParticleEmitterTypeInfo> for EmitterTypeInfo<EmitterTypeId>
+impl<EmitterTypeId> TryInto<SPParticleEmitterTypeInfo> for EmitterTypeInfo<EmitterTypeId>
 where
     EmitterTypeId: FromPrimitive + ToPrimitive,
 {
-    fn into(self) -> SPParticleEmitterTypeInfo {
-        SPParticleEmitterTypeInfo {
+    type Error = ();
+
+    fn try_into(self) -> Result<SPParticleEmitterTypeInfo, Self::Error> {
+        Ok(SPParticleEmitterTypeInfo {
             name: CString::new(self.name).unwrap().into_raw() as _,
             localID: ToPrimitive::to_u32(&self.id).unwrap(),
-        }
-    }
-}
-
-pub struct EmitterState(SPParticleEmitterState);
-
-impl EmitterState {
-    pub fn new(
-        position: Vec3,
-        rotation: Mat3,
-        time_accumulator_a: f64,
-        time_accumulator_b: f64,
-        user_data: Vec4,
-        global_type: u32,
-        counters: [u8; 4],
-    ) -> Self {
-        EmitterState(SPParticleEmitterState {
-            p: position.as_sp_vec(),
-            rot: rotation.as_sp_mat(),
-            timeAccumulatorA: time_accumulator_a,
-            timeAccumulatorB: time_accumulator_b,
-            userData: user_data.as_sp_vec(),
-            globalType: global_type,
-            counters,
         })
     }
 }
 
-pub struct ParticleState(SPParticleState);
+pub type EmitterState = SPParticleEmitterState;
 
-impl ParticleState {
-    pub fn new(
-        position: Vec3,
-        velocity: Vec3,
-        gravity: Vec3,
-        life_left: f64,
-        scale: f64,
-        random_value_a: f64,
-        random_value_b: f64,
-        user_data: Vec4,
-        particle_texture_type: u32,
-    ) -> Self {
-        ParticleState(SPParticleState {
-            p: position.as_sp_vec(),
-            v: velocity.as_sp_vec(),
-            gravity: gravity.as_sp_vec(),
-            lifeLeft: life_left,
-            scale,
-            randomValueA: random_value_a,
-            randomValueB: random_value_b,
-            userData: user_data.as_sp_vec(),
-            particleTextureType: particle_texture_type,
-        })
-    }
-}
+pub type ParticleState = SPParticleState;
 
 /*
  * Tests
@@ -329,8 +282,7 @@ mod tests {
             id: EmitterTypeId::Campfire,
         };
 
-        let sp_emitter_type_info: SPParticleEmitterTypeInfo =
-            TryFrom::try_from(emitter_type_info).unwrap();
+        let sp_emitter_type_info: SPParticleEmitterTypeInfo = emitter_type_info.try_into().unwrap();
 
         assert_eq!(
             unsafe { CStr::from_ptr(sp_emitter_type_info.name) }
