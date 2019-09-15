@@ -216,8 +216,13 @@ mod tests {
         Smoke,
     }
 
+    #[derive(Debug, PartialEq, FromPrimitive, ToPrimitive)]
+    enum EmitterTypeId {
+        Campfire,
+    }
+
     #[test]
-    fn test_render_group_info_from_sp_particle_render_group_info() {
+    fn test_render_group_info_from_sp() {
         let shader_name = CString::new("fire").unwrap();
 
         let mut vertex_description_types: [VertexAttributeType; 3] = [
@@ -257,7 +262,7 @@ mod tests {
     }
 
     #[test]
-    fn test_sp_particle_render_group_info_from_render_group_info() {
+    fn test_sp_particle_render_group_info_from_rs() {
         let render_group = RenderGroupInfo {
             shader_name: "fire".to_string(),
             id: RenderGroupId::Fire,
@@ -299,5 +304,40 @@ mod tests {
             sp_vertex_description_types[2],
             SPRenderGroupVertexDescriptionType_SPRenderGroupVertexDescriptionType_vec4
         );
+    }
+
+    #[test]
+    fn test_emitter_type_info_from_sp() {
+        let name = CString::new("campfire").unwrap();
+
+        let sp_emitter_type_info = SPParticleEmitterTypeInfo {
+            name: name.into_raw(),
+            localID: ToPrimitive::to_u32(&EmitterTypeId::Campfire).unwrap(),
+        };
+
+        let emitter_type_info: EmitterTypeInfo<EmitterTypeId> =
+            TryFrom::try_from(sp_emitter_type_info).unwrap();
+
+        assert_eq!(emitter_type_info.name, "campfire".to_string());
+        assert_eq!(emitter_type_info.id, EmitterTypeId::Campfire);
+    }
+
+    #[test]
+    fn test_sp_emitter_type_info_from_rs() {
+        let emitter_type_info = EmitterTypeInfo {
+            name: "campfire".to_string(),
+            id: EmitterTypeId::Campfire,
+        };
+
+        let sp_emitter_type_info: SPParticleEmitterTypeInfo =
+            TryFrom::try_from(emitter_type_info).unwrap();
+
+        assert_eq!(
+            unsafe { CStr::from_ptr(sp_emitter_type_info.name) }
+                .to_str()
+                .unwrap(),
+            "campfire"
+        );
+        assert_eq!(sp_emitter_type_info.localID, 0);
     }
 }
