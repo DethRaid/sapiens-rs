@@ -1,14 +1,17 @@
 //! Rusty structs for particle things
 
+#![allow(non_upper_case_globals)]
+
 use crate::sp::math::{Mat3, Vec3, Vec4};
 use sapiens_sys::*;
-use std::convert::TryFrom;
+use std::convert::{TryFrom, TryInto};
 use std::ffi::{CStr, CString};
 use std::mem;
 use std::os::raw;
 
 /// All the types of vertex attributes that Sapiens supports
 #[repr(i32)]
+#[derive(Debug, PartialEq)]
 pub enum VertexAttributeType {
     Float = SPRenderGroupVertexDescriptionType_SPRenderGroupVertexDescriptionType_float,
     Vec2 = SPRenderGroupVertexDescriptionType_SPRenderGroupVertexDescriptionType_vec2,
@@ -52,17 +55,22 @@ pub struct RenderGroupInfo<RenderGroupIdType> {
     pub vertex_descriptions: Vec<VertexAttributeType>,
 }
 
-impl<RenderGroupIdType> From<SPParticleRenderGroupInfo> for RenderGroupInfo<RenderGroupIdType>
+impl<RenderGroupIdType> TryFrom<SPParticleRenderGroupInfo> for RenderGroupInfo<RenderGroupIdType>
 where
-    RenderGroupIdType: From<u32> + Into<u32>,
+    RenderGroupIdType: TryFrom<u32>,
 {
-    fn from(sp_info: SPParticleRenderGroupInfo) -> Self {
-        RenderGroupInfo {
+    type Error = ();
+
+    fn try_from(sp_info: SPParticleRenderGroupInfo) -> Result<Self, Self::Error> {
+        Ok(RenderGroupInfo {
             shader_name: unsafe { CStr::from_ptr(sp_info.shaderName) }
                 .to_str()
                 .unwrap()
                 .to_owned(),
-            id: From::from(sp_info.localID),
+            id: match TryFrom::try_from(sp_info.localID) {
+                Ok(val) => val,
+                Err(_) => panic!("it broke"),
+            },
             vertex_descriptions: unsafe {
                 Vec::from_raw_parts(
                     sp_info.vertexDescriptionTypes as _,
@@ -70,26 +78,59 @@ where
                     sp_info.vertexDescriptionTypeCount as _,
                 )
             },
-        }
+        })
     }
 }
 
-impl<RenderGroupTypeId> Into<SPParticleRenderGroupInfo> for RenderGroupInfo<RenderGroupTypeId>
+impl<RenderGroupTypeId> TryInto<SPParticleRenderGroupInfo> for RenderGroupInfo<RenderGroupTypeId>
 where
-    RenderGroupTypeId: From<u32> + Into<u32>,
+    RenderGroupTypeId: TryInto<u32>,
 {
-    fn into(mut self) -> SPParticleRenderGroupInfo {
+    type Error = ();
+
+    fn try_into(mut self) -> Result<SPParticleRenderGroupInfo, Self::Error> {
         self.vertex_descriptions.shrink_to_fit();
         let ptr = self.vertex_descriptions.as_mut_ptr() as *mut raw::c_int;
         let len = self.vertex_descriptions.len() as raw::c_int;
         mem::forget(self.vertex_descriptions);
 
-        SPParticleRenderGroupInfo {
+        Ok(SPParticleRenderGroupInfo {
             shaderName: CString::new(self.shader_name).unwrap().into_raw() as _,
-            localID: Into::into(self.id),
+            localID: match TryInto::try_into(self.id) {
+                Ok(val) => val,
+                Err(_) => panic!("it broke"),
+            },
             vertexDescriptionTypeCount: len,
             vertexDescriptionTypes: ptr,
-        }
+        })
+    }
+}
+
+impl<RenderGroupTypeId> PartialEq<SPParticleRenderGroupInfo> for RenderGroupInfo<RenderGroupTypeId>
+where
+    RenderGroupTypeId: TryFrom<u32> + PartialEq,
+{
+    fn eq(&self, sp_info: &SPParticleRenderGroupInfo) -> bool {
+        let ffi_vertex_desc = unsafe {
+            Vec::from_raw_parts(
+                sp_info.vertexDescriptionTypes as *mut VertexAttributeType,
+                sp_info.vertexDescriptionTypeCount as _,
+                sp_info.vertexDescriptionTypeCount as _,
+            )
+        };
+
+        let ffi_shader_name = unsafe { CStr::from_ptr(sp_info.shaderName) }
+            .to_str()
+            .unwrap()
+            .to_owned();
+
+        self.shader_name == ffi_shader_name
+            && self.id
+                == (match TryFrom::try_from(sp_info.localID) {
+                    Ok(val) => val,
+                    Err(_) => panic!("it broke"),
+                })
+            && self.vertex_descriptions == ffi_vertex_desc
     }
 }
 
@@ -174,5 +215,88 @@ impl ParticleState {
             userData: user_data.as_sp_vec(),
             particleTextureType: particle_texture_type,
         })
+    }
+}
+
+/*
+ * Tests
+ */
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[repr(u32)]
+    #[derive(Debug)]
+    enum RenderGroupId {
+        Fire,
+        Smoke,
+    }
+
+    #[test]
+    fn i32_into_vertex_attribute_type() {
+        let sp_type: i32 =
+            SPRenderGroupVertexDescriptionType_SPRenderGroupVertexDescriptionType_float;
+        let rs_type: VertexAttributeType = TryFrom::try_from(sp_type).unwrap();
+
+        assert_eq!(rs_type, VertexAttributeType::Float);
+
+        let sp_type: i32 =
+            SPRenderGroupVertexDescriptionType_SPRenderGroupVertexDescriptionType_vec2;
+        let rs_type: VertexAttributeType = TryFrom::try_from(sp_type).unwrap();
+
+        assert_eq!(rs_type, VertexAttributeType::Vec2);
+
+        let sp_type: i32 =
+            SPRenderGroupVertexDescriptionType_SPRenderGroupVertexDescriptionType_vec3;
+        let rs_type: VertexAttributeType = TryFrom::try_from(sp_type).unwrap();
+
+        assert_eq!(rs_type, VertexAttributeType::Vec3);
+
+        let sp_type: i32 =
+            SPRenderGroupVertexDescriptionType_SPRenderGroupVertexDescriptionType_vec4;
+        let rs_type: VertexAttributeType = TryFrom::try_from(sp_type).unwrap();
+
+        assert_eq!(rs_type, VertexAttributeType::Vec4);
+    }
+
+    #[test]
+    fn test_render_group_info_from_sp_particle_render_group_info() {
+        let shader_name = CString::new("fire").unwrap();
+
+        let mut vertex_description_types: [VertexAttributeType; 3] = [
+            VertexAttributeType::Vec3,
+            VertexAttributeType::Vec2,
+            VertexAttributeType::Vec4,
+        ];
+
+        let sp_render_group = SPParticleRenderGroupInfo {
+            shaderName: shader_name.into_raw(),
+            localID: RenderGroupId::Fire as _,
+            vertexDescriptionTypeCount: vertex_description_types.len() as _,
+            vertexDescriptionTypes: vertex_description_types.as_mut_ptr() as _,
+        };
+
+        let render_group: RenderGroupInfo<RenderGroupId> =
+            TryFrom::try_from(sp_render_group).unwrap();
+
+        assert_eq!(render_group.shader_name, "fire");
+        assert_eq!(render_group.id, RenderGroupId::Fire);
+        assert_eq!(
+            render_group.vertex_descriptions.len(),
+            vertex_description_types.len()
+        );
+        assert_eq!(
+            render_group.vertex_descriptions[0],
+            vertex_description_types[0]
+        );
+        assert_eq!(
+            render_group.vertex_descriptions[1],
+            vertex_description_types[1]
+        );
+        assert_eq!(
+            render_group.vertex_descriptions[2],
+            vertex_description_types[2]
+        );
     }
 }

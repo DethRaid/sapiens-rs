@@ -4,7 +4,6 @@ extern crate sapiens_sys;
 use sapiens_rs::sp::particles::{EmitterTypeInfo, RenderGroupInfo, VertexAttributeType};
 use sapiens_rs_macros::export_to_sapiens;
 use sapiens_sys::{SPParticleEmitterTypeInfo, SPParticleRenderGroupInfo};
-use std::ffi::CString;
 
 #[repr(u32)]
 enum VanillaEmitterType {
@@ -48,12 +47,6 @@ fn get_emitter_types() -> Vec<EmitterTypeInfo<VanillaEmitterType>> {
 fn get_render_group_types_count() -> u32 {
     4
 }
-
-static VERTEX_DESCRIPTION_TYPES: [VertexAttributeType; 3] = [
-    VertexAttributeType::Vec3,
-    VertexAttributeType::Vec2,
-    VertexAttributeType::Vec4,
-];
 
 #[export_to_sapiens]
 fn get_render_group_types() -> Vec<RenderGroupInfo<VanillaRenderGroups>> {
@@ -114,21 +107,15 @@ mod tests {
         let emitter_types_count = get_emitter_types_count() as usize;
         let raw_ffi_emitters = spGetEmitterTypes();
 
-        let ffi_emitters: Vec<(CString, u32)> = unsafe {
+        let ffi_emitters = unsafe {
             Vec::<SPParticleEmitterTypeInfo>::from_raw_parts(
                 raw_ffi_emitters,
                 emitter_types_count,
                 emitter_types_count,
             )
-        }
-        .iter()
-        .map(|emitter| (unsafe { CString::from_raw(emitter.name) }, emitter.localID))
-        .collect();
+        };
 
-        let emitters: Vec<(CString, u32)> = get_emitter_types()
-            .iter()
-            .map(|emitter| (unsafe { CString::from_raw(emitter.name) }, emitter.localID))
-            .collect();
+        let emitters = get_emitter_types();
 
         assert_eq!(emitters, ffi_emitters);
     }
@@ -146,35 +133,15 @@ mod tests {
         let render_group_types_count = get_render_group_types_count() as usize;
         let raw_ffi_render_types = spGetRenderGroupTypes();
 
-        let ffi_render_types: Vec<(CString, u32, i32, *mut i32)> = unsafe {
+        let ffi_render_types = unsafe {
             Vec::<SPParticleRenderGroupInfo>::from_raw_parts(
                 raw_ffi_render_types,
                 render_group_types_count,
                 render_group_types_count,
             )
-        }
-        .iter()
-        .map(|render_group| {
-            (
-                unsafe { CString::from_raw(render_group.shaderName) },
-                render_group.localID,
-                render_group.vertexDescriptionTypeCount,
-                render_group.vertexDescriptionTypes,
-            )
-        })
-        .collect();
+        };
 
-        let render_types: Vec<(CString, u32, i32, *mut i32)> = get_render_group_types()
-            .iter()
-            .map(|render_group| {
-                (
-                    unsafe { CString::from_raw(render_group.shaderName) },
-                    render_group.localID,
-                    render_group.vertexDescriptionTypeCount,
-                    render_group.vertexDescriptionTypes,
-                )
-            })
-            .collect();
+        let render_types = get_render_group_types();
 
         assert_eq!(render_types, ffi_render_types);
     }
