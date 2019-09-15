@@ -1,13 +1,11 @@
 use num_derive::{FromPrimitive, ToPrimitive};
-use num_traits::{FromPrimitive, ToPrimitive};
 use sapiens_rs::sp::particles::EmitterTypeInfo;
 use sapiens_sys::SPParticleEmitterTypeInfo;
-use std::convert::{TryFrom, TryInto};
-use std::ops::RangeFull;
+use std::convert::TryInto;
 
 pub extern "C" fn spGetEmitterTypes() -> *mut SPParticleEmitterTypeInfo {
     let mut emitters: Vec<SPParticleEmitterTypeInfo> = get_emitter_types()
-        .drain(RangeFull)
+        .drain(::std::ops::RangeFull)
         .map(|emitter_type| emitter_type.try_into().unwrap())
         .collect();
 

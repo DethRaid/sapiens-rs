@@ -21,6 +21,7 @@ pub enum VertexAttributeType {
 }
 
 /// Idiomatic struct for a information about a render group
+#[derive(Debug)]
 pub struct RenderGroupInfo<RenderGroupIdType>
 where
     RenderGroupIdType: FromPrimitive + ToPrimitive,
@@ -114,6 +115,7 @@ where
     }
 }
 
+#[derive(Debug)]
 pub struct EmitterTypeInfo<EmitterTypeId> {
     pub name: String,
     pub id: EmitterTypeId,
@@ -147,6 +149,22 @@ where
             name: CString::new(self.name).unwrap().into_raw() as _,
             localID: ToPrimitive::to_u32(&self.id).unwrap(),
         })
+    }
+}
+
+impl<EmitterTypeId> PartialEq<SPParticleEmitterTypeInfo> for EmitterTypeInfo<EmitterTypeId>
+where
+    EmitterTypeId: FromPrimitive + PartialEq,
+{
+    fn eq(&self, other: &SPParticleEmitterTypeInfo) -> bool {
+        let ffi_emitter_type_name = unsafe { CStr::from_ptr(other.name) }
+            .to_str()
+            .unwrap()
+            .to_owned();
+
+        let ffi_emitter_type = EmitterTypeId::from_u32(other.localID).unwrap();
+
+        self.name == ffi_emitter_type_name && self.id == ffi_emitter_type
     }
 }
 

@@ -18,8 +18,8 @@ pub fn generate_get_emitter_types(func: syn::ItemFn) -> TokenStream {
     let ast = quote! {
     pub extern "C" fn spGetEmitterTypes() -> *mut SPParticleEmitterTypeInfo {
         let mut emitters: Vec<SPParticleEmitterTypeInfo> = get_emitter_types()
-            .iter()
-            .map(|emitter_type| ::std::convert::TryFrom::try_from(emitter_type).unwrap())
+            .drain(::std::ops::RangeFull)
+            .map(|emitter_type| ::std::convert::TryInto::try_into(emitter_type).unwrap())
             .collect();
 
         emitters.shrink_to_fit();
@@ -51,8 +51,8 @@ pub fn generate_get_render_group_types(func: syn::ItemFn) -> TokenStream {
     let ast = quote! {
     pub extern "C" fn spGetRenderGroupTypes() -> *mut SPParticleRenderGroupInfo {
         let mut render_group_types: Vec<SPParticleRenderGroupInfo> = get_render_group_types()
-            .iter()
-            .map(|emitter_type| ::std::convert::TryFrom::try_from(emitter_type).unwrap())
+            .drain(::std::ops::RangeFull)
+            .map(|emitter_type| ::std::convert::TryInto::try_into(emitter_type).unwrap())
             .collect();
 
         render_group_types.shrink_to_fit();
