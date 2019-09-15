@@ -1,5 +1,7 @@
 pub mod sp;
 
+extern crate num_derive;
+
 #[cfg(test)]
 mod tests {
     #[test]

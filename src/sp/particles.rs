@@ -3,6 +3,8 @@
 #![allow(non_upper_case_globals)]
 
 use crate::sp::math::{Mat3, Vec3, Vec4};
+use num_derive::{FromPrimitive, ToPrimitive};
+use num_traits::{FromPrimitive, ToPrimitive};
 use sapiens_sys::*;
 use std::convert::{TryFrom, TryInto};
 use std::ffi::{CStr, CString};
@@ -11,7 +13,7 @@ use std::os::raw;
 
 /// All the types of vertex attributes that Sapiens supports
 #[repr(i32)]
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, FromPrimitive, ToPrimitive)]
 pub enum VertexAttributeType {
     Float = SPRenderGroupVertexDescriptionType_SPRenderGroupVertexDescriptionType_float,
     Vec2 = SPRenderGroupVertexDescriptionType_SPRenderGroupVertexDescriptionType_vec2,
@@ -19,32 +21,13 @@ pub enum VertexAttributeType {
     Vec4 = SPRenderGroupVertexDescriptionType_SPRenderGroupVertexDescriptionType_vec4,
 }
 
-impl TryFrom<i32> for VertexAttributeType {
-    type Error = ();
-
-    fn try_from(value: i32) -> Result<Self, Self::Error> {
-        match value {
-            SPRenderGroupVertexDescriptionType_SPRenderGroupVertexDescriptionType_float => {
-                Ok(VertexAttributeType::Float)
-            }
-            SPRenderGroupVertexDescriptionType_SPRenderGroupVertexDescriptionType_vec2 => {
-                Ok(VertexAttributeType::Vec2)
-            }
-            SPRenderGroupVertexDescriptionType_SPRenderGroupVertexDescriptionType_vec3 => {
-                Ok(VertexAttributeType::Vec3)
-            }
-            SPRenderGroupVertexDescriptionType_SPRenderGroupVertexDescriptionType_vec4 => {
-                Ok(VertexAttributeType::Vec4)
-            }
-            _ => Err(()),
-        }
-    }
-}
-
 /// Idiomatic struct for a information about a render group
 ///
 /// TODO: Generizise this so people can use an enum for their render group IDs
-pub struct RenderGroupInfo<RenderGroupIdType> {
+pub struct RenderGroupInfo<RenderGroupIdType>
+where
+    RenderGroupIdType: FromPrimitive + ToPrimitive,
+{
     /// Name of the shader to use to render this render group
     pub shader_name: String,
 
@@ -57,7 +40,7 @@ pub struct RenderGroupInfo<RenderGroupIdType> {
 
 impl<RenderGroupIdType> TryFrom<SPParticleRenderGroupInfo> for RenderGroupInfo<RenderGroupIdType>
 where
-    RenderGroupIdType: TryFrom<u32>,
+    RenderGroupIdType: FromPrimitive + ToPrimitive,
 {
     type Error = ();
 
@@ -67,9 +50,9 @@ where
                 .to_str()
                 .unwrap()
                 .to_owned(),
-            id: match TryFrom::try_from(sp_info.localID) {
-                Ok(val) => val,
-                Err(_) => panic!("it broke"),
+            id: match FromPrimitive::from_u32(sp_info.localID) {
+                Some(val) => val,
+                None => panic!("it broke"),
             },
             vertex_descriptions: unsafe {
                 Vec::from_raw_parts(
@@ -84,7 +67,7 @@ where
 
 impl<RenderGroupTypeId> TryInto<SPParticleRenderGroupInfo> for RenderGroupInfo<RenderGroupTypeId>
 where
-    RenderGroupTypeId: TryInto<u32>,
+    RenderGroupTypeId: FromPrimitive + ToPrimitive,
 {
     type Error = ();
 
@@ -96,9 +79,9 @@ where
 
         Ok(SPParticleRenderGroupInfo {
             shaderName: CString::new(self.shader_name).unwrap().into_raw() as _,
-            localID: match TryInto::try_into(self.id) {
-                Ok(val) => val,
-                Err(_) => panic!("it broke"),
+            localID: match ToPrimitive::to_u32(&self.id) {
+                Some(val) => val,
+                None => panic!("it broke"),
             },
             vertexDescriptionTypeCount: len,
             vertexDescriptionTypes: ptr,
@@ -108,7 +91,7 @@ where
 
 impl<RenderGroupTypeId> PartialEq<SPParticleRenderGroupInfo> for RenderGroupInfo<RenderGroupTypeId>
 where
-    RenderGroupTypeId: TryFrom<u32> + PartialEq,
+    RenderGroupTypeId: FromPrimitive + ToPrimitive + PartialEq,
 {
     fn eq(&self, sp_info: &SPParticleRenderGroupInfo) -> bool {
         let ffi_vertex_desc = unsafe {
@@ -126,9 +109,9 @@ where
 
         self.shader_name == ffi_shader_name
             && self.id
-                == (match TryFrom::try_from(sp_info.localID) {
-                    Ok(val) => val,
-                    Err(_) => panic!("it broke"),
+                == (match FromPrimitive::from_u32(sp_info.localID) {
+                    Some(val) => val,
+                    None => panic!("it broke"),
                 })
             && self.vertex_descriptions == ffi_vertex_desc
     }
@@ -141,7 +124,7 @@ pub struct EmitterTypeInfo<EmitterTypeId> {
 
 impl<EmitterTypeId> From<SPParticleEmitterTypeInfo> for EmitterTypeInfo<EmitterTypeId>
 where
-    EmitterTypeId: From<u32> + Into<u32>,
+    EmitterTypeId: FromPrimitive + ToPrimitive,
 {
     fn from(sp_emitter_type: SPParticleEmitterTypeInfo) -> Self {
         EmitterTypeInfo {
@@ -149,19 +132,19 @@ where
                 .to_str()
                 .unwrap()
                 .to_owned(),
-            id: From::from(sp_emitter_type.localID),
+            id: FromPrimitive::from_u32(sp_emitter_type.localID).unwrap(),
         }
     }
 }
 
 impl<EmitterTypeId> Into<SPParticleEmitterTypeInfo> for EmitterTypeInfo<EmitterTypeId>
 where
-    EmitterTypeId: From<u32> + Into<u32>,
+    EmitterTypeId: FromPrimitive + ToPrimitive,
 {
     fn into(self) -> SPParticleEmitterTypeInfo {
         SPParticleEmitterTypeInfo {
             name: CString::new(self.name).unwrap().into_raw() as _,
-            localID: Into::into(self.id),
+            localID: ToPrimitive::to_u32(&self.id).unwrap(),
         }
     }
 }
@@ -226,38 +209,11 @@ impl ParticleState {
 mod tests {
     use super::*;
 
-    #[repr(u32)]
-    #[derive(Debug)]
+    #[derive(Debug, PartialEq, FromPrimitive, ToPrimitive)]
     enum RenderGroupId {
+        // TODO: Some way to put the render group type data in here
         Fire,
         Smoke,
-    }
-
-    #[test]
-    fn i32_into_vertex_attribute_type() {
-        let sp_type: i32 =
-            SPRenderGroupVertexDescriptionType_SPRenderGroupVertexDescriptionType_float;
-        let rs_type: VertexAttributeType = TryFrom::try_from(sp_type).unwrap();
-
-        assert_eq!(rs_type, VertexAttributeType::Float);
-
-        let sp_type: i32 =
-            SPRenderGroupVertexDescriptionType_SPRenderGroupVertexDescriptionType_vec2;
-        let rs_type: VertexAttributeType = TryFrom::try_from(sp_type).unwrap();
-
-        assert_eq!(rs_type, VertexAttributeType::Vec2);
-
-        let sp_type: i32 =
-            SPRenderGroupVertexDescriptionType_SPRenderGroupVertexDescriptionType_vec3;
-        let rs_type: VertexAttributeType = TryFrom::try_from(sp_type).unwrap();
-
-        assert_eq!(rs_type, VertexAttributeType::Vec3);
-
-        let sp_type: i32 =
-            SPRenderGroupVertexDescriptionType_SPRenderGroupVertexDescriptionType_vec4;
-        let rs_type: VertexAttributeType = TryFrom::try_from(sp_type).unwrap();
-
-        assert_eq!(rs_type, VertexAttributeType::Vec4);
     }
 
     #[test]
