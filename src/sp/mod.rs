@@ -12,6 +12,13 @@ pub mod rand;
 
 use sapiens_sys::*;
 
+#[macro_export]
+macro_rules! sp_meters_to_prerender {
+    ($val:expr) => {
+        (($val) / 8388608.0)
+    };
+}
+
 pub type SPQuat = SPVec4;
 
 /// Calculates the minimum of two numbers

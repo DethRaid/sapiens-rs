@@ -71,16 +71,15 @@ pub fn generate_get_render_group_types(func: syn::ItemFn) -> TokenStream {
 
 pub fn generate_emitter_was_added(func: syn::ItemFn) -> TokenStream {
     let ast = quote! {
-    pub extern "C" fn spEmitterWasAdded(threadState: *mut SPParticleThreadState,
-        emitterState: *mut SPParticleEmitterState,
+    pub extern "C" fn spEmitterWasAdded(threadState: *mut ::sapiens_sys::SPParticleThreadState,
+        emitterState: *mut ::sapiens_sys::SPParticleEmitterState,
         localEmitterTypeID: u32,
     ) -> bool {
-        let sp_thread_state = unsafe{ &*threadState };
-        let sp_emitter_state = unsafe { &*emitterState };
+        let mut emitter_state = unsafe { &mut *emitterState };
 
-        let mut thread_state = ::sapiens_rs::sp::particles::ThreadState::try_from(sp_thread_state).unwrap();
+        let mut thread_state: ::sapiens_rs::sp::particles::ThreadState = ::std::convert::TryFrom::try_from(unsafe { *threadState }).unwrap();
 
-        emitter_was_added(&thread_state, &emitter_state, localEmitterTypeID)
+        emitter_was_added(&thread_state, &mut emitter_state, ::num_traits::FromPrimitive::from_u32(localEmitterTypeID).unwrap())
     }
 
     #func

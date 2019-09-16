@@ -9,9 +9,13 @@ use num_traits::{FromPrimitive, ToPrimitive};
 use sapiens_sys::*;
 use std::convert::{TryFrom, TryInto};
 use std::ffi::{CStr, CString};
+use std::mem;
 use std::os::raw;
 use std::os::raw::c_void;
-use std::{marker, mem};
+
+// rustc thinks that this import isn't used, but it actually is
+#[allow(unused_imports)]
+use std::ptr::null_mut;
 
 /// All the types of vertex attributes that Sapiens supports
 #[repr(i32)]
@@ -176,12 +180,14 @@ pub struct ThreadState {
     particle_manager: *mut c_void,
 
     /// Function that your mod should call to tell Sapiens to add a particle
-    add_particle_to_sapiens: unsafe extern "C" fn(
-        arg1: *mut ::std::os::raw::c_void,
-        arg2: *mut SPParticleEmitterState,
-        arg3: u32,
-        arg4: *mut SPParticleState,
-    ),
+    add_particle_to_sapiens: Option<
+        unsafe extern "C" fn(
+            arg1: *mut ::std::os::raw::c_void,
+            arg2: *mut SPParticleEmitterState,
+            arg3: u32,
+            arg4: *mut SPParticleState,
+        ),
+    >,
 
     /// Thread-local random number generator
     pub rand: Rand,
@@ -198,14 +204,14 @@ impl ThreadState {
         render_type_id: RenderTypeId,
         particle_state: &mut ParticleState,
     ) {
-        unsafe {
-            (self.add_particle_to_sapiens)(
+        self.add_particle_to_sapiens.iter().for_each(|func| unsafe {
+            (func)(
                 self.particle_manager,
                 emitter_state,
                 render_type_id.to_u32().unwrap(),
                 particle_state,
             )
-        };
+        });
     }
 }
 
@@ -215,7 +221,7 @@ impl TryFrom<SPParticleThreadState> for ThreadState {
     fn try_from(value: SPParticleThreadState) -> Result<Self, Self::Error> {
         Ok(ThreadState {
             particle_manager: value.particleManager,
-            add_particle_to_sapiens: value.addParticle.unwrap(),
+            add_particle_to_sapiens: value.addParticle,
             rand: Rand::from_ptr(value.spRand),
             noise: Noise::from_ptr(value.spNoise),
         })
@@ -231,7 +237,7 @@ pub type ParticleState = SPParticleState;
  */
 
 #[cfg(test)]
-mod tests {
+mod conversion_tests {
     use super::*;
 
     #[derive(Debug, PartialEq, FromPrimitive, ToPrimitive)]
@@ -363,5 +369,22 @@ mod tests {
             "campfire"
         );
         assert_eq!(sp_emitter_type_info.localID, 0);
+    }
+
+    #[test]
+    fn thread_state_from_sp() {
+        let sp_thread_state = SPParticleThreadState {
+            particleManager: null_mut(),
+            addParticle: None,
+            spRand: null_mut(),
+            spNoise: null_mut(),
+        };
+
+        let thread_state = ThreadState::try_from(sp_thread_state).unwrap();
+
+        assert_eq!(
+            thread_state.add_particle_to_sapiens,
+            sp_thread_state.addParticle
+        );
     }
 }

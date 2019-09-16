@@ -4,16 +4,18 @@
 
 extern crate num_derive;
 extern crate num_traits;
+extern crate sapiens_rs;
 extern crate sapiens_rs_macros;
 extern crate sapiens_sys;
 
 use num_derive::{FromPrimitive, ToPrimitive};
-use num_traits::{FromPrimitive, ToPrimitive};
+use sapiens_rs::sp;
 use sapiens_rs::sp::particles::{
-    EmitterState, EmitterTypeInfo, RenderGroupInfo, VertexAttributeType,
+    EmitterState, EmitterTypeInfo, ParticleState, RenderGroupInfo, ThreadState, VertexAttributeType,
 };
+use sapiens_rs::sp_meters_to_prerender;
 use sapiens_rs_macros::export_to_sapiens;
-use sapiens_sys::{SPParticleEmitterTypeInfo, SPParticleRenderGroupInfo};
+use sapiens_sys::{SPParticleEmitterTypeInfo, SPParticleRenderGroupInfo, SPVec4};
 
 #[derive(Debug, PartialEq, FromPrimitive, ToPrimitive)]
 enum VanillaEmitterType {
@@ -102,8 +104,8 @@ fn get_render_group_types() -> Vec<RenderGroupInfo<VanillaRenderType>> {
 
 #[export_to_sapiens]
 fn emitter_was_added(
-    thread_state: &mut ThreadState<_, VanillaRenderType>,
-    emitter_state: &EmitterState,
+    thread_state: &ThreadState,
+    emitter_state: &mut EmitterState,
     emitter_type: VanillaEmitterType,
 ) -> bool {
     let mut remove_immediately = false;
@@ -113,12 +115,77 @@ fn emitter_was_added(
         VanillaEmitterType::WoodChop => {
             remove_immediately = true;
 
-            let pos_length = spVec3Length(emitter_state.p);
+            let pos_length = sp::vec3_length(emitter_state.p);
+            let normalized_pos = sp::vec3_div(emitter_state.p, pos_length);
+            let gravity = sp::vec3_mul(normalized_pos, sp_meters_to_prerender!(-10.0));
+
+            for _ in 0..32 {
+                let rand_pos_vec =
+                    sp::vec3_mul(thread_state.rand.get_vec3(), sp_meters_to_prerender!(0.2));
+                let rand_vel_vec = thread_state.rand.get_vec3();
+
+                let mut state = ParticleState {
+                    p: sp::vec3_add(sp::vec3_mul(normalized_pos, pos_length), rand_pos_vec),
+                    v: sp::vec3_mul(
+                        sp::vec3_add(normalized_pos, rand_vel_vec),
+                        sp_meters_to_prerender!(1.0),
+                    ),
+                    gravity,
+                    lifeLeft: 1.0,
+                    scale: 1.0,
+                    randomValueA: thread_state.rand.get_float(),
+                    randomValueB: 0.0,
+                    userData: SPVec4::default(),
+                    particleTextureType: 3,
+                };
+
+                thread_state.add_particle(emitter_state, VanillaRenderType::Standard, &mut state);
+            }
         }
-        VanillaEmitterType::Feathers => {}
+        VanillaEmitterType::Feathers => {
+            remove_immediately = true;
+            let pos_length = sp::vec3_length(emitter_state.p);
+            let normalized_pos = sp::vec3_div(emitter_state.p, pos_length);
+            let gravity = sp::vec3_mul(normalized_pos, sp_meters_to_prerender!(-2.0));
+
+            for _ in 0..32 {
+                let rand_pos_vec =
+                    sp::vec3_mul(thread_state.rand.get_vec3(), sp_meters_to_prerender!(0.2));
+                let rand_vel_vec = thread_state.rand.get_vec3();
+
+                let mut state = ParticleState {
+                    p: sp::vec3_add(
+                        sp::vec3_mul(normalized_pos, pos_length + sp_meters_to_prerender!(0.25)),
+                        rand_pos_vec,
+                    ),
+                    v: sp::vec3_mul(
+                        sp::vec3_add(normalized_pos, rand_vel_vec),
+                        sp_meters_to_prerender!(1.0),
+                    ),
+                    gravity,
+                    lifeLeft: 1.0,
+                    scale: 1.0,
+                    randomValueA: thread_state.rand.get_float(),
+                    randomValueB: 0.0,
+                    userData: SPVec4::default(),
+                    particleTextureType: 3,
+                };
+
+                thread_state.add_particle(emitter_state, VanillaRenderType::Standard, &mut state);
+            }
+        }
     }
 
-    true
+    if !remove_immediately {
+        for i in 0..4 {
+            emitter_state.counters[i] = 0;
+        }
+
+        emitter_state.timeAccumulatorA = 0.0;
+        emitter_state.timeAccumulatorB = 0.0;
+    }
+
+    remove_immediately
 }
 
 #[cfg(test)]

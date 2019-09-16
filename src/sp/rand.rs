@@ -1,5 +1,4 @@
-use crate::sp::math::Vec3;
-use sapiens_sys::{spRandDelete, spRandGetValue, spRandGetVec3, spRandNew, SPRand};
+use sapiens_sys::{spRandDelete, spRandGetValue, spRandGetVec3, spRandNew, SPRand, SPVec3};
 
 pub struct Rand(*mut SPRand);
 
@@ -19,8 +18,8 @@ impl Rand {
     }
 
     /// Gets a random Vec3 from this rng
-    pub fn get_vec3(&self) -> Vec3 {
-        Vec3::from(unsafe { spRandGetVec3(self.0) })
+    pub fn get_vec3(&self) -> SPVec3 {
+        unsafe { spRandGetVec3(self.0) }
     }
 
     /// Gets a random float from this rng

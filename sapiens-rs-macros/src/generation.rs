@@ -5,7 +5,6 @@ use crate::particles::{
     generate_get_render_group_types, generate_get_render_group_types_count,
 };
 use proc_macro::TokenStream;
-use quote::quote;
 use std::convert::TryFrom;
 
 #[allow(non_camel_case_types)]
