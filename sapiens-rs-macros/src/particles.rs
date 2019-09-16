@@ -78,7 +78,7 @@ pub fn generate_emitter_was_added(func: syn::ItemFn) -> TokenStream {
         let sp_thread_state = unsafe{ &*threadState };
         let sp_emitter_state = unsafe { &*emitterState };
 
-        let mut thread_state = ::sapiens_rs::sp::particles::ThreadState::try_from(sp_thread_state);
+        let mut thread_state = ::sapiens_rs::sp::particles::ThreadState::try_from(sp_thread_state).unwrap();
 
         emitter_was_added(&thread_state, &emitter_state, localEmitterTypeID)
     }

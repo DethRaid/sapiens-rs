@@ -7,11 +7,11 @@ use crate::sp::rand::Rand;
 use num_derive::{FromPrimitive, ToPrimitive};
 use num_traits::{FromPrimitive, ToPrimitive};
 use sapiens_sys::*;
-use std::borrow::BorrowMut;
 use std::convert::{TryFrom, TryInto};
-use std::ffi::{c_void, CStr, CString};
-use std::mem;
+use std::ffi::{CStr, CString};
 use std::os::raw;
+use std::os::raw::c_void;
+use std::{marker, mem};
 
 /// All the types of vertex attributes that Sapiens supports
 #[repr(i32)]
@@ -171,38 +171,51 @@ where
     }
 }
 
-pub struct ThreadState<ParticleManager, RenderTypeId> {
-    pub particle_manager: &'_ ParticleManager,
+pub struct ThreadState {
+    /// Pointer to some data the Sapiens needs to evaluate particles
+    particle_manager: *mut c_void,
 
     /// Function that your mod should call to tell Sapiens to add a particle
-    pub add_particle: fn(&mut ParticleManager, &EmitterState, RenderTypeId, &ParticleState),
+    add_particle_to_sapiens: unsafe extern "C" fn(
+        arg1: *mut ::std::os::raw::c_void,
+        arg2: *mut SPParticleEmitterState,
+        arg3: u32,
+        arg4: *mut SPParticleState,
+    ),
+
+    /// Thread-local random number generator
     pub rand: Rand,
+
+    /// Thread-local noise generator
     pub noise: Noise,
 }
 
-impl<ParticleManager, RenderTypeId> TryFrom<SPParticleThreadState>
-    for ThreadState<ParticleManager, RenderTypeId>
-where
-    RenderTypeId: FromPrimitive + ToPrimitive,
-{
+impl ThreadState {
+    /// Tells Sapiens to spawn a new particle for your emitter
+    pub fn add_particle<RenderTypeId: ToPrimitive>(
+        &self,
+        emitter_state: &mut EmitterState,
+        render_type_id: RenderTypeId,
+        particle_state: &mut ParticleState,
+    ) {
+        unsafe {
+            (self.add_particle_to_sapiens)(
+                self.particle_manager,
+                emitter_state,
+                render_type_id.to_u32().unwrap(),
+                particle_state,
+            )
+        };
+    }
+}
+
+impl TryFrom<SPParticleThreadState> for ThreadState {
     type Error = ();
 
     fn try_from(value: SPParticleThreadState) -> Result<Self, Self::Error> {
-        let mut particle_manager = unsafe { &*(value.particleManager as *mut ParticleManager) };
-
-        let add_particle =
-            |particle_manager, emitter_state, render_type: RenderTypeId, particle_state| {
-                value.addParticle.unwrap()(
-                    &particle_manager as _,
-                    &emitter_state as _,
-                    render_type.to_u32().unwrap(),
-                    &particle_state as _,
-                );
-            };
-
         Ok(ThreadState {
-            particle_manager,
-            add_particle,
+            particle_manager: value.particleManager,
+            add_particle_to_sapiens: value.addParticle.unwrap(),
             rand: Rand::from_ptr(value.spRand),
             noise: Noise::from_ptr(value.spNoise),
         })
