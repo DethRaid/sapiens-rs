@@ -188,6 +188,15 @@ fn emitter_was_added(
     remove_immediately
 }
 
+fn update_emitter(
+    thread_state: &mut ThreadState,
+    emitter_state: &mut EmitterState,
+    emitter_type: VanillaEmitterType,
+    delta_time: f64,
+) {
+    // TODO
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
