@@ -13,8 +13,6 @@ use sapiens_sys::*;
 
 use sapiens_rs::sp::{vec3_add, vec3_mul};
 
-use sapiens_rs_macros::export_to_sapiens;
-
 /// Sapiens calls this function once per particle to update that particle's position, velocity, and rendering
 /// information
 #[allow(non_snake_case)]
@@ -61,7 +59,7 @@ pub fn update_particle(
     render_group: u32,
     delta_time: f64,
     _: SPVec3,
-    render_buffer: *mut f32,
+    _render_buffer: *mut f32,
 ) -> bool {
     let life_left_multiplier = match FromPrimitive::from_u32(render_group) {
         Some(ParticleRenderType::Smoke) => 0.01,

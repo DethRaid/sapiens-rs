@@ -16,6 +16,7 @@ pub fn generate_get_emitter_type_count_func(func: syn::ItemFn) -> TokenStream {
 
 pub fn generate_get_emitter_types(func: syn::ItemFn) -> TokenStream {
     let ast = quote! {
+    #[no_mangle]
     pub extern "C" fn spGetEmitterTypes() -> *mut SPParticleEmitterTypeInfo {
         let mut emitters: Vec<SPParticleEmitterTypeInfo> = get_emitter_types()
             .drain(::std::ops::RangeFull)
@@ -37,6 +38,7 @@ pub fn generate_get_emitter_types(func: syn::ItemFn) -> TokenStream {
 
 pub fn generate_get_render_group_types_count(func: syn::ItemFn) -> TokenStream {
     let ast = quote! {
+    #[no_mangle]
     pub extern "C" fn spGetRenderGroupTypesCount() -> ::std::os::raw::c_int {
         get_render_group_types_count() as ::std::os::raw::c_int
     }
@@ -49,6 +51,7 @@ pub fn generate_get_render_group_types_count(func: syn::ItemFn) -> TokenStream {
 
 pub fn generate_get_render_group_types(func: syn::ItemFn) -> TokenStream {
     let ast = quote! {
+    #[no_mangle]
     pub extern "C" fn spGetRenderGroupTypes() -> *mut SPParticleRenderGroupInfo {
         let mut render_group_types: Vec<SPParticleRenderGroupInfo> = get_render_group_types()
             .drain(::std::ops::RangeFull)
@@ -71,6 +74,7 @@ pub fn generate_get_render_group_types(func: syn::ItemFn) -> TokenStream {
 
 pub fn generate_emitter_was_added(func: syn::ItemFn) -> TokenStream {
     let ast = quote! {
+    #[no_mangle]
     pub extern "C" fn spEmitterWasAdded(threadState: *mut ::sapiens_sys::SPParticleThreadState,
         emitterState: *mut ::sapiens_sys::SPParticleEmitterState,
         localEmitterTypeID: u32,

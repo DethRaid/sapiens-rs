@@ -3,6 +3,7 @@ use sapiens_rs::sp::particles::EmitterTypeInfo;
 use sapiens_sys::SPParticleEmitterTypeInfo;
 use std::convert::TryInto;
 
+#[allow(non_snake_case)]
 pub extern "C" fn spGetEmitterTypes() -> *mut SPParticleEmitterTypeInfo {
     let mut emitters: Vec<SPParticleEmitterTypeInfo> = get_emitter_types()
         .drain(::std::ops::RangeFull)

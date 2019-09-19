@@ -7,7 +7,7 @@ description = "A few functions and project templates to wrap the Sapiens C API i
 readme = "readme.md"
 keywords = ["sapiens", "mod", "modding"]
 categories = ["api-bindings"]
-license = "MIT"
+license = "MPL"
 repository = "https://github.com/DethRaid/sapiens-rs"
 
 # TODO: Badges

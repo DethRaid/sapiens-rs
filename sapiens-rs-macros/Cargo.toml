@@ -6,7 +6,7 @@ edition = "2018"
 description = "Procedural macros to expose the functions that a Sapient mod needs to expose"
 keywords = ["sapiens", "ffi"]
 repository = "https://github.com/DethRaid/sapiens-rs"
-license = "MIT"
+license = "MPL"
 
 [lib]
 proc-macro = true

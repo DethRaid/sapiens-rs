@@ -1,3 +1,3 @@
 fn main() {
-    // TODO: Figure out how to link to Sapiens at runtime
+    println!("cargo:rustc-link-lib=SPCommon");
 }
