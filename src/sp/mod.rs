@@ -256,7 +256,7 @@ pub fn point_is_left_of_line(p: SPVec3, a: SPVec3, b: SPVec3) -> bool {
 
 // Smoke tests to ensure I'm calling the correct Sapiens functions
 
-#[cfg(tests)]
+#[cfg(test)]
 mod math_smoke_tests {
     use super::*;
 
@@ -264,21 +264,21 @@ mod math_smoke_tests {
     fn min_test() {
         let result = min(3.0, 4.0);
 
-        assert_eq!(result, 3);
+        assert_eq!(result, 3.0);
     }
 
     #[test]
     fn max_test() {
         let result = max(3.0, 4.0);
 
-        assert_eq!(result, 4);
+        assert_eq!(result, 4.0);
     }
 
     #[test]
     fn clamp_test() {
         let result = clamp(3.0, 0.0, 1.0);
 
-        assert_eq!(result, 1);
+        assert_eq!(result, 1.0);
     }
 
     #[test]
@@ -296,7 +296,7 @@ mod math_smoke_tests {
     }
 }
 
-#[cfg(tests)]
+#[cfg(test)]
 mod vec2_smoke_tests {
     use super::*;
 
@@ -346,4 +346,378 @@ mod vec2_smoke_tests {
 
         assert_eq!(result, SPVec2 { x: -2.0, y: -3.0 })
     }
+}
+
+#[cfg(test)]
+mod vec3_smoke_tests {
+    use super::*;
+
+    #[test]
+    fn vec3_add_test() {
+        let a = SPVec3 {
+            x: 2.0,
+            y: 2.0,
+            z: 2.0,
+        };
+        let b = SPVec3 {
+            x: 3.0,
+            y: 4.0,
+            z: 5.0,
+        };
+
+        let result = vec3_add(a, b);
+
+        assert_eq!(
+            result,
+            SPVec3 {
+                x: 5.0,
+                y: 6.0,
+                z: 7.0
+            }
+        );
+    }
+
+    #[test]
+    fn vec3_sub_test() {
+        let a = SPVec3 {
+            x: 2.0,
+            y: 2.0,
+            z: 2.0,
+        };
+        let b = SPVec3 {
+            x: 3.0,
+            y: 4.0,
+            z: 5.0,
+        };
+
+        let result = vec3_sub(a, b);
+
+        assert_eq!(
+            result,
+            SPVec3 {
+                x: -1.0,
+                y: -2.0,
+                z: -3.0
+            }
+        );
+    }
+
+    #[test]
+    fn vec3_mul_test() {
+        let a = SPVec3 {
+            x: 2.0,
+            y: 3.0,
+            z: 5.0,
+        };
+
+        let result = vec3_mul(a, 4.0);
+
+        assert_eq!(
+            result,
+            SPVec3 {
+                x: 8.0,
+                y: 12.0,
+                z: 20.0
+            }
+        );
+    }
+
+    #[test]
+    fn vec3_div_test() {
+        let a = SPVec3 {
+            x: 2.0,
+            y: 3.0,
+            z: 5.0,
+        };
+
+        let result = vec3_div(a, 2.0);
+
+        assert_eq!(
+            result,
+            SPVec3 {
+                x: 1.0,
+                y: 1.5,
+                z: 2.5
+            }
+        )
+    }
+
+    #[test]
+    fn vec3_neg_test() {
+        let a = SPVec3 {
+            x: 2.0,
+            y: 3.0,
+            z: 5.0,
+        };
+
+        let result = vec3_neg(a);
+
+        assert_eq!(
+            result,
+            SPVec3 {
+                x: -2.0,
+                y: -3.0,
+                z: -5.0
+            }
+        )
+    }
+}
+
+#[cfg(test)]
+mod vec4_smoke_tests {
+    use super::*;
+
+    #[test]
+    fn vec4_add_test() {
+        let a = SPVec4 {
+            x: 2.0,
+            y: 2.0,
+            z: 2.0,
+            w: 2.0,
+        };
+        let b = SPVec4 {
+            x: 3.0,
+            y: 4.0,
+            z: 5.0,
+            w: 6.0,
+        };
+
+        let result = vec4_add(a, b);
+
+        assert_eq!(
+            result,
+            SPVec4 {
+                x: 5.0,
+                y: 6.0,
+                z: 7.0,
+                w: 8.0
+            }
+        );
+    }
+
+    #[test]
+    fn vec4_sub_test() {
+        let a = SPVec4 {
+            x: 2.0,
+            y: 2.0,
+            z: 2.0,
+            w: 2.0,
+        };
+        let b = SPVec4 {
+            x: 3.0,
+            y: 4.0,
+            z: 5.0,
+            w: 6.0,
+        };
+
+        let result = vec4_sub(a, b);
+
+        assert_eq!(
+            result,
+            SPVec4 {
+                x: -1.0,
+                y: -2.0,
+                z: -3.0,
+                w: -4.0
+            }
+        );
+    }
+
+    #[test]
+    fn vec4_mul_test() {
+        let a = SPVec4 {
+            x: 2.0,
+            y: 3.0,
+            z: 5.0,
+            w: 6.0,
+        };
+
+        let result = vec4_mul(a, 4.0);
+
+        assert_eq!(
+            result,
+            SPVec4 {
+                x: 8.0,
+                y: 12.0,
+                z: 20.0,
+                w: 24.0
+            }
+        );
+    }
+
+    #[test]
+    fn vec4_div_test() {
+        let a = SPVec4 {
+            x: 2.0,
+            y: 3.0,
+            z: 5.0,
+            w: 6.0,
+        };
+
+        let result = vec4_div(a, 2.0);
+
+        assert_eq!(
+            result,
+            SPVec4 {
+                x: 1.0,
+                y: 1.5,
+                z: 2.5,
+                w: 3.0
+            }
+        )
+    }
+
+    #[test]
+    fn vec4_neg_test() {
+        let a = SPVec4 {
+            x: 2.0,
+            y: 3.0,
+            z: 5.0,
+            w: 6.0,
+        };
+
+        let result = vec4_neg(a);
+
+        assert_eq!(
+            result,
+            SPVec4 {
+                x: -2.0,
+                y: -3.0,
+                z: -5.0,
+                w: -6.0
+            }
+        )
+    }
+}
+
+#[cfg(test)]
+mod linear_algebra_smoke_tests {
+    use super::*;
+
+    #[test]
+    fn vec3_normalize_test() {
+        let vec = SPVec3 {
+            x: 2.0,
+            y: 2.0,
+            z: 2.0,
+        };
+
+        let normalized_vec = vec3_normalize(vec);
+
+        assert_eq!(
+            normalized_vec,
+            SPVec3 {
+                x: 0.707,
+                y: 0.707,
+                z: 0.707
+            }
+        );
+    }
+
+    #[test]
+    fn vec3_dot_test() {
+        let a = SPVec3 {
+            x: 1.0,
+            y: 0.0,
+            z: 0.0,
+        };
+        let b = SPVec3 {
+            x: 0.0,
+            y: 1.0,
+            z: 0.0,
+        };
+
+        let dot = vec3_dot(a, b);
+
+        assert_eq!(dot, 0.707);
+    }
+
+    #[test]
+    fn vec3_cross_test() {
+        let a = SPVec3 {
+            x: 1.0,
+            y: 0.0,
+            z: 0.0,
+        };
+        let b = SPVec3 {
+            x: 0.0,
+            y: 1.0,
+            z: 0.0,
+        };
+
+        let cross = vec3_cross(a, b);
+
+        assert_eq!(
+            cross,
+            SPVec3 {
+                x: 0.0,
+                y: 0.0,
+                z: 1.0
+            }
+        );
+    }
+
+    #[test]
+    fn vec3_length_test() {
+        let vec = SPVec3 {
+            x: 2.0,
+            y: 2.0,
+            z: 2.0,
+        };
+
+        let len = vec3_length(vec);
+
+        assert_eq!(len, 4.0);
+    }
+
+    #[test]
+    fn vec3_length2_test() {
+        let vec = SPVec3 {
+            x: 2.0,
+            y: 2.0,
+            z: 2.0,
+        };
+
+        let len = vec3_length2(vec);
+
+        assert_eq!(len, 16.0);
+    }
+
+    #[test]
+    fn vec3_distance_test() {
+        let a = SPVec3 {
+            x: 1.0,
+            y: 2.0,
+            z: 3.0,
+        };
+        let b = SPVec3 {
+            x: 3.0,
+            y: 2.0,
+            z: 1.0,
+        };
+
+        let distance = vec3_distance(a, b);
+
+        assert_eq!(distance, 3.0);
+    }
+
+    #[test]
+    fn vec3_distance2_test() {
+        let a = SPVec3 {
+            x: 1.0,
+            y: 2.0,
+            z: 3.0,
+        };
+        let b = SPVec3 {
+            x: 3.0,
+            y: 2.0,
+            z: 1.0,
+        };
+
+        let distance = vec3_distance2(a, b);
+
+        assert_eq!(distance, 9.0);
+    }
+
+    // I don't wanna do the mat3 functions wahhhhhhhhhhhhhhhhhhh
 }

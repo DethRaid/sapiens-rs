@@ -10,12 +10,10 @@ extern crate sapiens_sys;
 
 use num_derive::{FromPrimitive, ToPrimitive};
 use sapiens_rs::sp;
-use sapiens_rs::sp::particles::{
-    EmitterState, EmitterTypeInfo, ParticleState, RenderGroupInfo, ThreadState, VertexAttributeType,
-};
+use sapiens_rs::sp::particles::*;
 use sapiens_rs::sp_meters_to_prerender;
 use sapiens_rs_macros::export_to_sapiens;
-use sapiens_sys::{SPParticleEmitterTypeInfo, SPParticleRenderGroupInfo, SPVec4};
+use sapiens_sys::*;
 
 #[derive(Debug, PartialEq, FromPrimitive, ToPrimitive)]
 enum VanillaEmitterType {
@@ -188,13 +186,36 @@ fn emitter_was_added(
     remove_immediately
 }
 
+const FIXED_TIME_STEP: f64 = 1.0 / 60.0;
+
 fn update_emitter(
     thread_state: &mut ThreadState,
     emitter_state: &mut EmitterState,
     emitter_type: VanillaEmitterType,
     delta_time: f64,
 ) {
-    // TODO
+    let rand = &thread_state.rand;
+
+    emitter_state.timeAccumulatorA += delta_time;
+
+    // Run particle simulations at a fixed time step
+    while emitter_state.timeAccumulatorA > 0.0 {
+        emitter_state.timeAccumulatorA -= FIXED_TIME_STEP;
+        emitter_state.timeAccumulatorB += FIXED_TIME_STEP;
+
+        match emitter_type {
+            VanillaEmitterType::Campfire => {
+                if emitter_state.counters[0] == 0 {
+                    // smoke
+                    let pos_length = sp::vec3_length(emitter_state.p);
+                    let normalized_pos = sp::vec3_div(emitter_state.p, pos_length);
+                    let state = SPParticleState {};
+                }
+            }
+            VanillaEmitterType::WoodChop => {}
+            VanillaEmitterType::Feathers => {}
+        }
+    }
 }
 
 #[cfg(test)]
