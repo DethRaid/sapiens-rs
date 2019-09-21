@@ -205,17 +205,164 @@ fn update_emitter(
 
         match emitter_type {
             VanillaEmitterType::Campfire => {
+                // smoke
                 if emitter_state.counters[0] == 0 {
-                    // smoke
                     let pos_length = sp::vec3_length(emitter_state.p);
                     let normalized_pos = sp::vec3_div(emitter_state.p, pos_length);
-                    let state = SPParticleState {};
+
+                    let lookup = SPVec3 {
+                        x: (normalized_pos.x + 1.2) * 99999.9,
+                        y: (normalized_pos.y * 4.5 + normalized_pos.z + 2.4) * 99999.9,
+                        z: emitter_state.timeAccumulatorB * 0.1,
+                    };
+                    let lookup_b = SPVec3 {
+                        x: (normalized_pos.x + 1.4) * 99999.9,
+                        y: (normalized_pos.y * 4.6 + normalized_pos.z + 2.8) * 99999.9,
+                        z: emitter_state.timeAccumulatorB * 0.1,
+                    };
+                    let lookup_c = SPVec3 {
+                        x: (normalized_pos.x + 1.8) * 99999.9,
+                        y: (normalized_pos.y * 4.8 + normalized_pos.z + 2.9) * 99999.9,
+                        z: emitter_state.timeAccumulatorB * 0.5,
+                    };
+
+                    let noise_value = thread_state.noise.get(&lookup, 2);
+                    let noise_value_b = thread_state.noise.get(&lookup_b, 2);
+                    let noise_value_c = thread_state.noise.get(&lookup_c, 2);
+
+                    let intermediate_gravity = sp::vec3_mul(
+                        sp::mat3_get_row(emitter_state.rot, 0),
+                        sp_meters_to_prerender!(noise_value) * 0.5,
+                    );
+
+                    let mut state = SPParticleState {
+                        p: sp::vec3_mul(normalized_pos, pos_length + sp_meters_to_prerender!(0.2)),
+                        v: sp::vec3_mul(
+                            normalized_pos,
+                            sp_meters_to_prerender!(0.5 + noise_value_c) * 0.5,
+                        ),
+                        particleTextureType: 2,
+                        lifeLeft: 1.0,
+                        scale: 0.2 + rand.get_float() * 0.2,
+                        randomValueA: rand.get_float(),
+                        randomValueB: 0.0,
+                        gravity: sp::vec3_add(
+                            intermediate_gravity,
+                            sp::vec3_mul(
+                                sp::mat3_get_row(emitter_state.rot, 2),
+                                sp_meters_to_prerender!(noise_value_b) * 0.5,
+                            ),
+                        ),
+                        userData: Default::default(),
+                    };
+
+                    thread_state.add_particle(emitter_state, VanillaRenderType::Smoke, &mut state);
+
+                    emitter_state.counters[0] = (1.0 + (20.0 * (1.0 - noise_value_c))) as u8;
+                } else {
+                    emitter_state.counters[0] -= 1;
+                }
+
+                // Flame 1
+                if emitter_state.counters[1] == 0 {
+                    let rand_pos_vec = sp::vec3_mul(rand.get_vec3(), sp_meters_to_prerender!(0.04));
+                    let scale_average = 0.5;
+
+                    emit_fire_particle(thread_state, emitter_state, scale_average, &rand_pos_vec);
+
+                    emitter_state.counters[1] = (5.0 + (20.0 * rand.get_float())) as u8;
+                } else {
+                    emitter_state.counters[1] -= 1;
+                }
+
+                // Flame 2
+                if emitter_state.counters[2] == 0 {
+                    let rand_pos_vec = sp::vec3_mul(rand.get_vec3(), sp_meters_to_prerender!(0.04));
+                    let rand_pos_vec = sp::vec3_add(
+                        rand_pos_vec,
+                        sp::vec3_mul(
+                            sp::mat3_get_row(emitter_state.rot, 0),
+                            sp_meters_to_prerender!(0.2),
+                        ),
+                    );
+
+                    let scale_average = 0.35;
+
+                    emit_fire_particle(thread_state, emitter_state, scale_average, &rand_pos_vec);
+
+                    emitter_state.counters[2] = (5.0 + (20.0 * rand.get_float())) as u8;
+                } else {
+                    emitter_state.counters[2] -= 1;
+                }
+
+                // Flame 3
+                if emitter_state.counters[4] == 0 {
+                    let rand_pos_vec = sp::vec3_mul(rand.get_vec3(), sp_meters_to_prerender!(0.04));
+                    let rand_pos_vec = sp::vec3_add(
+                        rand_pos_vec,
+                        sp::vec3_mul(
+                            sp::mat3_get_row(emitter_state.rot, 2),
+                            sp_meters_to_prerender!(0.1),
+                        ),
+                    );
+                    let scale_average = 0.2;
+
+                    emit_fire_particle(thread_state, emitter_state, scale_average, &rand_pos_vec);
+
+                    emitter_state.counters[3] = (5.0 + (20.0 * rand.get_float())) as u8;
+                } else {
+                    if emitter_state.counters[3] == 18 {
+                        // Spark
+                        let pos_length = sp::vec3_length(emitter_state.p);
+                        let normalized_pos = sp::vec3_div(emitter_state.p, pos_length);
+
+                        let rand_vec = rand.get_vec3();
+                        let rand_pos_vec = sp::vec3_mul(rand_vec, sp_meters_to_prerender!(0.1));
+                        let rand_vel_vec = sp::vec3_mul(rand_vec, sp_meters_to_prerender!(0.4));
+
+                        let mut state = SPParticleState {
+                            p: sp::vec3_add(
+                                sp::vec3_mul(
+                                    normalized_pos,
+                                    pos_length + sp_meters_to_prerender!(0.1),
+                                ),
+                                rand_pos_vec,
+                            ),
+                            v: sp::vec3_mul(
+                                sp::vec3_add(normalized_pos, rand_vel_vec),
+                                sp_meters_to_prerender!(2.0 + rand.get_float() * 0.5),
+                            ),
+                            gravity: sp::vec3_mul(rand.get_vec3(), sp_meters_to_prerender!(1.0)),
+                            lifeLeft: 1.0,
+                            scale: 0.01 + rand.get_float() * 0.02,
+                            randomValueA: rand.get_float(),
+                            randomValueB: rand.get_float(),
+                            userData: Default::default(),
+                            particleTextureType: 3,
+                        };
+
+                        thread_state.add_particle(
+                            emitter_state,
+                            VanillaRenderType::Spark,
+                            &mut state,
+                        );
+                    }
+
+                    emitter_state.counters[3] -= 1;
                 }
             }
             VanillaEmitterType::WoodChop => {}
             VanillaEmitterType::Feathers => {}
         }
     }
+}
+
+fn emit_fire_particle(
+    thread_state: &ThreadState,
+    emitter_state: &EmitterState,
+    scale_average: f64,
+    rand_pos_vec: &SPVec3,
+) {
 }
 
 #[cfg(test)]
