@@ -3,6 +3,7 @@
 use crate::particles::{
     generate_emitter_was_added, generate_get_emitter_type_count_func, generate_get_emitter_types,
     generate_get_render_group_types, generate_get_render_group_types_count,
+    generate_update_emitter,
 };
 use proc_macro::TokenStream;
 use std::convert::TryFrom;
@@ -15,6 +16,7 @@ pub(crate) enum SapiensApiFunctions {
     spGetRenderGroupTypesCount,
     spGetRenderGroupTypes,
     spEmitterWasAdded,
+    spUpdateEmitter,
 }
 
 impl TryFrom<String> for SapiensApiFunctions {
@@ -31,6 +33,8 @@ impl TryFrom<String> for SapiensApiFunctions {
             Ok(SapiensApiFunctions::spGetRenderGroupTypes)
         } else if &value == "emitter_was_added" {
             Ok(SapiensApiFunctions::spEmitterWasAdded)
+        } else if &value == "update_emitter" {
+            Ok(SapiensApiFunctions::spUpdateEmitter)
         } else {
             Err(())
         }
@@ -58,5 +62,6 @@ pub fn generate_binding(func: syn::ItemFn) -> TokenStream {
         }
         SapiensApiFunctions::spGetRenderGroupTypes => generate_get_render_group_types(func),
         SapiensApiFunctions::spEmitterWasAdded => generate_emitter_was_added(func),
+        SapiensApiFunctions::spUpdateEmitter => generate_update_emitter(func),
     }
 }

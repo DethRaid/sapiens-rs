@@ -2,6 +2,10 @@
 //! https://github.com/mjdave/sapiens-mod-creation/blob/master/SPlugins/Examples/SPVanilla/src/SPParticles.c to show how
 //! to use the Rust API to make Sapiens particles
 
+#![feature(trace_macros)]
+
+trace_macros!(true);
+
 extern crate num_derive;
 extern crate num_traits;
 extern crate sapiens_rs;
@@ -14,7 +18,6 @@ use sapiens_rs::sp::particles::*;
 use sapiens_rs::sp_meters_to_prerender;
 use sapiens_rs_macros::export_to_sapiens;
 use sapiens_sys::*;
-use std::ptr::slice_from_raw_parts_mut;
 
 #[derive(Debug, PartialEq, FromPrimitive, ToPrimitive)]
 enum VanillaEmitterType {
@@ -189,6 +192,7 @@ fn emitter_was_added(
 
 const FIXED_TIME_STEP: f64 = 1.0 / 60.0;
 
+#[export_to_sapiens]
 fn update_emitter(
     thread_state: &mut ThreadState,
     emitter_state: &mut EmitterState,
@@ -299,7 +303,7 @@ fn update_emitter(
                 }
 
                 // Flame 3
-                if emitter_state.counters[4] == 0 {
+                if emitter_state.counters[3] == 0 {
                     let rand_pos_vec =
                         sp::vec3_mul(&rand.get_vec3(), sp_meters_to_prerender!(0.04));
                     let rand_pos_vec = sp::vec3_add(

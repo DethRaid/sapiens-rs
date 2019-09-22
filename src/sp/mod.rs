@@ -696,7 +696,7 @@ mod linear_algebra_smoke_tests {
             z: 1.0,
         };
 
-        let distance = vec3_distance&a, &b);
+        let distance = vec3_distance(&a, &b);
 
         assert_eq!(distance, 3.0);
     }

@@ -75,7 +75,7 @@ pub fn generate_get_render_group_types(func: syn::ItemFn) -> TokenStream {
 pub fn generate_emitter_was_added(func: syn::ItemFn) -> TokenStream {
     let ast = quote! {
     #[no_mangle]
-    pub extern "C" fn spEmitterWasAdded(threadState: *mut ::sapiens_sys::SPParticleThreadState,
+    pub unsafe extern "C" fn spEmitterWasAdded(threadState: *mut ::sapiens_sys::SPParticleThreadState,
         emitterState: *mut ::sapiens_sys::SPParticleEmitterState,
         localEmitterTypeID: u32,
     ) -> bool {
@@ -87,6 +87,31 @@ pub fn generate_emitter_was_added(func: syn::ItemFn) -> TokenStream {
     }
 
     #func
+    };
+
+    ast.into()
+}
+
+pub fn generate_update_emitter(func: syn::ItemFn) -> TokenStream {
+    let ast = quote! {
+    pub unsafe extern "C" fn spUpdateEmitter(
+        sp_thread_state: *mut ::sapiens_sys::SPParticleThreadState,
+        sp_emitter_state: *mut ::sapiens_sys::SPParticleEmitterState,
+        local_emitter_type_id: u32,
+        dt: f64
+    ) {
+
+        let mut thread_state: ::sapiens_rs::sp::particles::ThreadState = ::std::convert::TryFrom::try_from(unsafe { *sp_thread_state }).unwrap();
+        let mut emitter_state = unsafe { &mut *sp_emitter_state };
+
+        update_emitter(
+            &mut thread_state,
+            &mut emitter_state,
+            ::num_traits::FromPrimitive::from_u32(local_emitter_type_id).unwrap(),
+            dt);
+    }
+
+        #func
     };
 
     ast.into()

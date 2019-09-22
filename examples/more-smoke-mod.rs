@@ -77,23 +77,24 @@ pub fn update_particle(
 
     match FromPrimitive::from_u32(render_group) {
         Some(ParticleRenderType::Smoke) => {
-            particle_state.v = vec3_mul(particle_state.v, 1.0 - delta_time * 0.05);
+            particle_state.v = vec3_mul(&particle_state.v, 1.0 - delta_time * 0.05);
 
-            let vel = vec3_add(particle_state.v, particle_state.gravity);
+            let vel = vec3_add(&particle_state.v, &particle_state.gravity);
 
-            particle_state.p = vec3_add(particle_state.p, vec3_mul(vel, delta_time));
+            particle_state.p = vec3_add(&particle_state.p, &vec3_mul(&vel, delta_time));
             particle_state.scale +=
                 delta_time * particle_state.lifeLeft * (1.0 + particle_state.randomValueA) * 0.15;
         }
         Some(ParticleRenderType::Fire) => {
-            particle_state.p = vec3_mul(particle_state.p, 2.0 - life_left * delta_time);
+            particle_state.p = vec3_mul(&particle_state.p, 2.0 - life_left * delta_time);
         }
         _ => {
             particle_state.v = vec3_add(
-                particle_state.v,
-                vec3_mul(particle_state.gravity, delta_time),
+                &particle_state.v,
+                &vec3_mul(&particle_state.gravity, delta_time),
             );
-            particle_state.p = vec3_add(particle_state.p, vec3_mul(particle_state.v, delta_time));
+            particle_state.p =
+                vec3_add(&particle_state.p, &vec3_mul(&particle_state.v, delta_time));
         }
     }
 
