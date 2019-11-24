@@ -1,6 +1,6 @@
 [package]
 name = "sapiens-rs"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["David Dubois <dexcelstraun7@gmail.com>"]
 edition = "2018"
 description = "A few functions and project templates to wrap the Sapiens C API in a Rust API"
@@ -10,11 +10,21 @@ categories = ["api-bindings"]
 license = "MPL"
 repository = "https://github.com/DethRaid/sapiens-rs"
 
+[features]
+default = ["particle"]
+
+biome = []
+climate = []
+height = []
+particle = []
+rainfall = []
+
+all = ["biome", "climate", "height", "particle", "rainfall", "default"]
+
 # TODO: Badges
 
 [dependencies]
 sapiens-sys = { path = "sapiens-sys", version = "0.2" }
-sapiens-rs-macros = { path = 'sapiens-rs-macros', version = "0.1" }
 num-traits = "0.2"
 num-derive = "0.2"
 

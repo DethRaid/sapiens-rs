@@ -4,12 +4,6 @@ pub mod noise;
 pub mod particles;
 pub mod rand;
 
-// Sapiens Math Library
-//
-// This is a _very_ thin wrapper around Sapiens' vector math API. I made a mode idiomatic wrapper but found that
-// converting to/from Sapiens FFI types was just too cumbersome. Usage of this API is recommended for most mods,
-// especially ones which don't perform much vector math
-
 use sapiens_sys::*;
 
 #[macro_export]
