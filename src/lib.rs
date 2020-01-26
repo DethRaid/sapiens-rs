@@ -5,7 +5,7 @@ mod usermod;
 
 extern crate num_derive;
 
-use sapiens_sys::SPParticleEmitterTypeInfo;
+use sapiens_sys::{SPParticleEmitterTypeInfo, SPParticleRenderGroupInfo};
 use std::convert::TryInto;
 use std::os::raw::c_int;
 use std::{mem, ops};
@@ -13,7 +13,7 @@ use std::{mem, ops};
 #[no_mangle]
 #[cfg(feature = "particle")]
 pub extern "C" fn spGetEmitterTypesCount() -> c_int {
-    usermod::particles::get_emitter_types_count()
+    usermod::particles::get_emitter_types().len() as c_int
 }
 
 #[no_mangle]
@@ -34,5 +34,11 @@ pub extern "C" fn spGetEmitterTypes() -> *mut SPParticleEmitterTypeInfo {
 #[no_mangle]
 #[cfg(feature = "particle")]
 pub extern "C" fn spGetRenderGroupTypesCount() -> c_int {
-    get_render_group_types_count() as c_int
+    usermod::particles::get_render_group_types_count() as c_int
+}
+
+#[no_mangle]
+#[cfg(feature = "particle")]
+pub extern "C" fn spGetRenderGroupTypes() -> *mut SPParticleRenderGroupInfo {
+    unimplemented!();
 }

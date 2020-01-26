@@ -40,34 +40,7 @@ where
     pub id: RenderGroupIdType,
 
     /// All the vertex attributes that make up the vertex data that this render group renders
-    pub vertex_descriptions: Vec<VertexAttributeType>,
-}
-
-impl<RenderGroupIdType> TryFrom<SPParticleRenderGroupInfo> for RenderGroupInfo<RenderGroupIdType>
-where
-    RenderGroupIdType: FromPrimitive + ToPrimitive,
-{
-    type Error = ();
-
-    fn try_from(sp_info: SPParticleRenderGroupInfo) -> Result<Self, Self::Error> {
-        Ok(RenderGroupInfo {
-            shader_name: unsafe { CStr::from_ptr(sp_info.shaderName) }
-                .to_str()
-                .unwrap()
-                .to_owned(),
-            id: match FromPrimitive::from_u32(sp_info.localID) {
-                Some(val) => val,
-                None => panic!("it broke"),
-            },
-            vertex_descriptions: unsafe {
-                Vec::from_raw_parts(
-                    sp_info.vertexDescriptionTypes as _,
-                    sp_info.vertexDescriptionTypeCount as _,
-                    sp_info.vertexDescriptionTypeCount as _,
-                )
-            },
-        })
-    }
+    pub vertex_descriptions: &'static [VertexAttributeType],
 }
 
 impl<RenderGroupTypeId> TryInto<SPParticleRenderGroupInfo> for RenderGroupInfo<RenderGroupTypeId>
@@ -77,7 +50,6 @@ where
     type Error = ();
 
     fn try_into(mut self) -> Result<SPParticleRenderGroupInfo, Self::Error> {
-        self.vertex_descriptions.shrink_to_fit();
         let ptr = self.vertex_descriptions.as_mut_ptr() as *mut raw::c_int;
         let len = self.vertex_descriptions.len() as raw::c_int;
         mem::forget(self.vertex_descriptions);

@@ -1,4 +1,4 @@
-use crate::sp::particles::EmitterTypeInfo;
+use crate::sp::particles::{EmitterTypeInfo, RenderGroupInfo, VertexAttributeType};
 use num_derive::{FromPrimitive, ToPrimitive};
 
 /// Base of a particles mod
@@ -19,14 +19,25 @@ pub enum EmitterType {
     Count,
 }
 
-/// Returns the number of emitter types that your mod defines
-#[cfg(feature = "particle")]
-pub fn get_emitter_types_count() -> i32 {
-    EmitterType::Count as i32
+#[derive(Debug, PartialEq, FromPrimitive, ToPrimitive)]
+#[repr(i32)]
+pub enum RenderGroup {
+    Smoke,
+    Fire,
+    Standard,
+    Spark,
 }
 
+const VERTEX_DESCRIPTION: [VertexAttributeType; 3] = [
+    VertexAttributeType::Vec3,
+    VertexAttributeType::Vec2,
+    VertexAttributeType::Vec4,
+];
+
+/// Returns a list of all the emitter types that your mod defines
 #[cfg(feature = "particle")]
 pub fn get_emitter_types() -> Vec<EmitterTypeInfo<EmitterType>> {
+    // TODO: Figure out how to make this static data that doesn't get created on every invocation
     vec![
         EmitterTypeInfo {
             name: "campfire".to_string(),
@@ -44,6 +55,24 @@ pub fn get_emitter_types() -> Vec<EmitterTypeInfo<EmitterType>> {
 }
 
 #[cfg(feature = "particle")]
-fn get_render_group_types_count() -> u32 {
+pub fn get_render_group_types_count() -> u32 {
     4
+}
+
+#[cfg(feature = "particle")]
+pub fn get_render_group_types() -> Vec<RenderGroupInfo<RenderGroup>> {
+    unsafe {
+        vec![
+            RenderGroupInfo {
+                shader_name: "smokeParticle".to_string(),
+                id: RenderGroup::Smoke,
+                vertex_descriptions: &VERTEX_DESCRIPTION,
+            },
+            RenderGroupInfo {
+                shader_name: "fireParticle".to_string(),
+                id: RenderGroup::Fire,
+                vertex_descriptions: &VERTEX_DESCRIPTION,
+            },
+        ]
+    }
 }
