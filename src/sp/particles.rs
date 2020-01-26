@@ -84,13 +84,23 @@ where
             .unwrap()
             .to_owned();
 
+        let are_vertex_descriptions_equal = {
+            let mut val = true;
+            for i in 0..ffi_vertex_desc.len() {
+                if ffi_vertex_desc[i] != self.vertex_descriptions[i] {
+                    val = false
+                }
+            }
+            val
+        };
+
         self.shader_name == ffi_shader_name
             && self.id
                 == (match FromPrimitive::from_u32(sp_info.localID) {
                     Some(val) => val,
                     None => panic!("it broke"),
                 })
-            && self.vertex_descriptions == ffi_vertex_desc
+            && are_vertex_descriptions_equal
     }
 }
 

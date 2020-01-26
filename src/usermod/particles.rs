@@ -55,24 +55,27 @@ pub fn get_emitter_types() -> Vec<EmitterTypeInfo<EmitterType>> {
 }
 
 #[cfg(feature = "particle")]
-pub fn get_render_group_types_count() -> u32 {
-    4
-}
-
-#[cfg(feature = "particle")]
 pub fn get_render_group_types() -> Vec<RenderGroupInfo<RenderGroup>> {
-    unsafe {
-        vec![
-            RenderGroupInfo {
-                shader_name: "smokeParticle".to_string(),
-                id: RenderGroup::Smoke,
-                vertex_descriptions: &VERTEX_DESCRIPTION,
-            },
-            RenderGroupInfo {
-                shader_name: "fireParticle".to_string(),
-                id: RenderGroup::Fire,
-                vertex_descriptions: &VERTEX_DESCRIPTION,
-            },
-        ]
-    }
+    vec![
+        RenderGroupInfo {
+            shader_name: "smokeParticle".to_string(),
+            id: RenderGroup::Smoke,
+            vertex_descriptions: &VERTEX_DESCRIPTION,
+        },
+        RenderGroupInfo {
+            shader_name: "fireParticle".to_string(),
+            id: RenderGroup::Fire,
+            vertex_descriptions: &VERTEX_DESCRIPTION,
+        },
+        RenderGroupInfo {
+            shader_name: "particle".to_string(),
+            id: RenderGroup::Standard,
+            vertex_descriptions: &VERTEX_DESCRIPTION,
+        },
+        RenderGroupInfo {
+            shader_name: "spark".to_string(),
+            id: RenderGroup::Spark,
+            vertex_descriptions: &VERTEX_DESCRIPTION,
+        },
+    ]
 }

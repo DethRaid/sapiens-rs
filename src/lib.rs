@@ -34,11 +34,21 @@ pub extern "C" fn spGetEmitterTypes() -> *mut SPParticleEmitterTypeInfo {
 #[no_mangle]
 #[cfg(feature = "particle")]
 pub extern "C" fn spGetRenderGroupTypesCount() -> c_int {
-    usermod::particles::get_render_group_types_count() as c_int
+    usermod::particles::get_render_group_types().len() as c_int
 }
 
 #[no_mangle]
 #[cfg(feature = "particle")]
 pub extern "C" fn spGetRenderGroupTypes() -> *mut SPParticleRenderGroupInfo {
-    unimplemented!();
+    let mut render_groups: Vec<SPParticleRenderGroupInfo> =
+        usermod::particles::get_render_group_types()
+            .drain(ops::RangeFull)
+            .map(|render_group| TryInto::try_into(render_group).unwrap())
+            .collect();
+
+    render_groups.shrink_to_fit();
+    let ptr = render_groups.as_mut_ptr();
+    mem::forget(render_groups);
+
+    ptr
 }
